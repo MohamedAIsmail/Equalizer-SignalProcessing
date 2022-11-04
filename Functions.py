@@ -1,6 +1,5 @@
 import plotly.graph_objects as go
-import streamlit as st  # 🎈 data web app development
-import pandas as pd  # read csv, df manipulation
+import streamlit as st 
 import numpy as np
 import plotly as pt
 import wave
@@ -13,23 +12,20 @@ def readAudioFile(fileName):
     return audio_file, audio_player
 
 
-def plotTimeDomain(data, time):
-
+def plotTimeDomain(time, data ):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=time, y=data,
-                             mode='lines', name='Signal Plot'))
-
+                            mode='lines', name='Signal Plot'))
     fig.update_layout(title='Time Domain')
     fig.update_xaxes(title='Time')
     fig.update_yaxes(title='Signal Value')
     st.plotly_chart(fig)
 
 
-def plotFrequencyDomain(data, time):
+def plotFrequencyDomain(frequency,frequency_magnitude):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=time, y=data,
-                             mode='lines', name='Signal Plot'))
-
+    fig.add_trace(go.Scatter(x=frequency, y=frequency_magnitude,
+                            mode='lines', name='Signal Plot'))
     fig.update_layout(title='Frequency Domain')
     fig.update_xaxes(title='Frequency (Hz)')
     fig.update_yaxes(title='Magnitude')
@@ -37,7 +33,15 @@ def plotFrequencyDomain(data, time):
 
 
 def frequencyDomain(signal, sample_rate):
-    fft_specturm = np.abs(np.fft.rfft(signal))
-    freq = np.fft.rfftfreq(signal.size, 1/sample_rate)
+    freq = np.fft.rfft(signal)
+    freq_magnitude= np.abs(freq)
+    fft_spectrum = np.fft.rfftfreq(signal.size, 1/sample_rate)
+    return  freq_magnitude,fft_spectrum
 
-    return fft_specturm, freq
+
+## list = [{frequency_1: 5, frequency_2: 10, gain_db:2}]
+def edit_frequency(freq_spectrum,freq_magnitude,sample_rate, edit_list):
+    frequency_points= len(freq_spectrum)/(sample_rate/2)
+    for edit in edit_list:
+        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]= np.sqrt((10**(edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]**2)))
+    return freq_magnitude

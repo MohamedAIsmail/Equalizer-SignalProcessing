@@ -14,26 +14,33 @@ def readAudioFile(fileName):
 
 
 def plotTimeDomain(data, time):
-
-    fig = go.Figure()
+    maxTime = max(time)
+    layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=30,), xaxis={
+                       "fixedrange": True}, yaxis={"fixedrange": True})
+    fig = go.Figure(layout=layout)
     fig.add_trace(go.Scatter(x=time, y=data,
                              mode='lines', name='Signal Plot'))
 
-    fig.update_layout(title='Time Domain')
-    fig.update_xaxes(title='Time')
+    fig.update_layout(title='Time Domain', height=300)
+    fig.update_xaxes(title='Time', range=[0, maxTime])
     fig.update_yaxes(title='Signal Value')
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def plotFrequencyDomain(data, time):
-    fig = go.Figure()
+    layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=30,), xaxis={
+                       "fixedrange": True}, yaxis={"fixedrange": True})
+
+    fig = go.Figure(layout=layout)
     fig.add_trace(go.Scatter(x=time, y=data,
                              mode='lines', name='Signal Plot'))
 
-    fig.update_layout(title='Frequency Domain')
+    fig.update_layout(title='Frequency Domain',
+                      height=300)
     fig.update_xaxes(title='Frequency (Hz)')
     fig.update_yaxes(title='Magnitude')
-    st.plotly_chart(fig)
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def frequencyDomain(signal, sample_rate):

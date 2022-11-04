@@ -29,10 +29,12 @@ if (uploadedAudio):
     signal_array = fn.np.frombuffer(single_wave, dtype=fn.np.int16)
     time = fn.np.linspace(0, t_audio, n_samples)
     fn.plotTimeDomain(time,signal_array)
-    freq_magnitude,frequency_spectrum_abs = fn.frequencyDomain(signal_array, sample_freq)
-    fn.plotFrequencyDomain(frequency_spectrum_abs, freq_magnitude)
+    freq_magnitude,fft_spectrum = fn.frequencyDomain(signal_array, sample_freq)
+    fn.plotFrequencyDomain(fft_spectrum, freq_magnitude)
     st.audio(audio_player, format='audio/wav')
-    # frequency_spectrum_abs= fn.edit_frequency(freq_magnitude,frequency_spectrum_abs,50,100,500)
+    edit_list = [{"frequency_1": 0, "frequency_2": 50, "gain_db":12},{"frequency_1": 100, "frequency_2": 150, "gain_db":-12}]
+    freq_magnitude= fn.edit_frequency(fft_spectrum,freq_magnitude,sample_freq, edit_list)
+    fn.plotFrequencyDomain(fft_spectrum, freq_magnitude)
 
 
 

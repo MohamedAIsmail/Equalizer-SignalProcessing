@@ -33,17 +33,15 @@ def plotFrequencyDomain(frequency,frequency_magnitude):
 
 
 def frequencyDomain(signal, sample_rate):
-    freq_magnitude = np.fft.rfft(signal)
-    freq_magnitude_abs = np.abs(freq_magnitude)
+    freq = np.fft.rfft(signal)
+    freq_magnitude= np.abs(freq)
     fft_spectrum = np.fft.rfftfreq(signal.size, 1/sample_rate)
-    return  freq_magnitude_abs,fft_spectrum
+    return  freq_magnitude,fft_spectrum
 
 
-
-## list = [{frequency_1: 5, frequency_2: 10 new_amplitude}]
-
-def edit_frequency(freq_spectrum,frequency_magnitude, frequency_1, frequency_2,new_amplitude):
-    for i,f in enumerate(frequency_magnitude):
-        if f > frequency_1 and f < frequency_2 :
-            freq_spectrum[i]= new_amplitude
-    return freq_spectrum
+## list = [{frequency_1: 5, frequency_2: 10, gain_db:2}]
+def edit_frequency(freq_spectrum,freq_magnitude,sample_rate, edit_list):
+    frequency_points= len(freq_spectrum)/(sample_rate/2)
+    for edit in edit_list:
+        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]= np.sqrt((10**(edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]**2)))
+    return freq_magnitude

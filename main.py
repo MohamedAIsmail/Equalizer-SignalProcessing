@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit_vertical_slider as svs
 import Functions as fn
 import matplotlib.pyplot as plt
 
@@ -9,143 +8,87 @@ st.set_page_config(page_title="Equalizer",
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-
+# Columns for GUI
 leftColumn, rightColumn, subRightColumn = st.columns((1, 2, 2))
-with leftColumn:
-    uploadedAudio = st.file_uploader('Upload your audio here!')
-    selectMode = st.selectbox('Select mode', ())
+leftSpectrogramColumn, rightSpectrogramColumn, subRightSpectrogramColumn = st.columns(
+    (1, 2, 2))
+audioLeftCol, audioRightCol = st.columns((1, 4))
+sliderColumns = st.columns((1.01, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+textColumns = st.columns(11)
+
+with st.container():
     Apply = st.button('Apply Changes')
 
-
-col1, slid1, slid2, slid3, slid4, slid5, slid6, slid7, slid8, slid9, slid10 = st.columns(
-    11)
-text, slid1text, slid2text, slid3text, slid4text, slid5text, slid6text, slid7text, slid8text, slid9text, slid10text = st.columns(
-    11)
-
-with text:
-    st.header('Frequencies')
-
-with slid1:
-    slider1 = svs.vertical_slider(key='Freq1', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid1text:
-    st.text('100 - 200 Hz')
+with leftColumn:
+    uploadedAudio = st.file_uploader('Upload your audio here!')
+    selectMode = st.selectbox('Select mode', ('Musical Instruments', 'Vowels'))
 
 
-with slid2:
-    slider2 = svs.vertical_slider(key='Freq2', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid2text:
-    st.text('200-1000 Hz')
+alphabetArr = [('Alphabet'), ('A'), ('B'), ('C'), ('D'), ('E'),
+               ('F'), ('G'), ('H'), ('I'), ('J')]
 
-with slid3:
-    slider3 = svs.vertical_slider(key='Freq3', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid3text:
-    st.text('1000 - 2000 Hz')
-with slid4:
-    slider4 = svs.vertical_slider(key='Freq4', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid5:
-    slider5 = svs.vertical_slider(key='Freq5', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid6:
-    slider6 = svs.vertical_slider(key='Freq6', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid7:
-    slider7 = svs.vertical_slider(key='Freq7', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid8:
-    slider8 = svs.vertical_slider(key='Freq8', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid9:
-    slider9 = svs.vertical_slider(key='Freq9', step=1,
-                                  min_value=1,
-                                  max_value=100,
-                                  slider_color='blue',  # optional
-                                  track_color='lightgray',  # optional
-                                  thumb_color='blue'  # optional
-                                  )
-with slid10:
-    slider10 = svs.vertical_slider(key='Freq10', step=1,
-                                   min_value=1,
-                                   max_value=100,
-                                   slider_color='blue',  # optional
-                                   track_color='lightgray',  # optional
-                                   thumb_color='blue'  # optional
 
-                                   )
+# Saving the value of the sliders in a list [(1,0), (2,9)] ..
+sliderData = fn.Sliders(sliderColumns)
+
+
+for idx, i in enumerate(alphabetArr):
+    with textColumns[idx]:
+        if (idx == 0):
+            st.header(alphabetArr[idx])
+        else:
+            st.text(alphabetArr[idx])
 
 if (uploadedAudio):
-    audio_file, audio_player = fn.readAudioFile(uploadedAudio.name)
+    # ---------------------------------------------- CALCULATIONS -----------------------------
+
+    audio_file, audio_player = fn.readAudioFile(
+        uploadedAudio.name)  # Read audio file uploaded
+
+    # Calculate sample frequency from wav File
+    sample_freq = audio_file.getframerate()
+    n_samples = audio_file.getnframes()         # Get total number of samples
+    # List containing magnitude values of signal
+    single_wave = audio_file.readframes(-1)
+
+    t_audio = n_samples / sample_freq           # Max time of the audio
+
+    audioData = fn.np.frombuffer(single_wave, dtype=fn.np.int16)
+    time = fn.np.linspace(0, t_audio, n_samples)
+    maxTime = max(time)
+
+    freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
+        audioData, sample_freq)
+    maxFFT_spectrum = max(fft_spectrum)
+
+    with leftColumn:
+        spectroMode = st.checkbox('Show Spectrogram')
     if (Apply):
-        sample_freq = audio_file.getframerate()
-        n_samples = audio_file.getnframes()
-        single_wave = audio_file.readframes(-1)
+        freq_magnitude = fn.Equalizer(
+            freq_magnitude, fft_spectrum, sample_freq)
 
-        t_audio = n_samples / sample_freq
+    # ----------------------------------------------------- PLOTTING -------------------------------------
+    with rightColumn:  # Plot the normal signal
+        fn.plot(time, audioData, 'Original Signal',
+                'Time (s)', 'Amplitude (mV)', maxTime)
 
-        signal_array = fn.np.frombuffer(single_wave, dtype=fn.np.int16)
-        time = fn.np.linspace(0, t_audio, n_samples)
+    with subRightColumn:  # Plot the frequency domain
+        fn.plot(fft_spectrum, freq_magnitude, 'Frequency Domain',
+                'Frequency (Hz)', 'Magnitude', maxFFT_spectrum)
 
-        with rightColumn:
-            fn.plotTimeDomain(signal_array, time)
-
-        signal_fd, time_fd = fn.frequencyDomain(
-            signal_array, sample_freq)
-        with subRightColumn:
-            fn.plotFrequencyDomain(signal_fd, time_fd)
-
+    with audioRightCol:  # Audio Play
         st.audio(audio_player, format='audio/wav')
-    else:
 
-        with rightColumn:
-            fn.plotTimeDomain([], [6])
-        with subRightColumn:
-            fn.plotFrequencyDomain([], [])
-        st.audio(audio_player, format='audio/wav')
+    if (spectroMode):
+        with rightSpectrogramColumn:
+            fn.plotSpectrogram(audioData, sample_freq, 'Input Spectrogram')
+        with subRightSpectrogramColumn:
+            fn.plotSpectrogram(
+                freq_magnitude, sample_freq, 'Output Spectrogram')
 else:
     with rightColumn:
-        fn.plotTimeDomain([], [6])
+        fn.plot([], [6], 'Original Signal',
+                'Time (s)', 'Amplitude (mV)', 7)
     with subRightColumn:
-        fn.plotFrequencyDomain([], [])
+        fn.plot([], [], 'Frequency Domain',
+                'Frequency (Hz)', 'Magnitude', 1000)

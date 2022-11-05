@@ -12,26 +12,14 @@ def readAudioFile(fileName):
     audio_player = open(fileName, 'rb')
     return audio_file, audio_player
 
-
-def plotTimeDomain(time, data ):
+def plot(x_points, y_points,graph_title, x_title,y_title ):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=time, y=data,
+    fig.add_trace(go.Scatter(x=x_points, y=y_points,
                             mode='lines', name='Signal Plot'))
-    fig.update_layout(title='Time Domain')
-    fig.update_xaxes(title='Time')
-    fig.update_yaxes(title='Signal Value')
-    st.plotly_chart(fig)
-
-
-def plotFrequencyDomain(frequency,frequency_magnitude):
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=frequency, y=frequency_magnitude,
-                            mode='lines', name='Signal Plot'))
-    fig.update_layout(title='Frequency Domain')
-    fig.update_xaxes(title='Frequency (Hz)')
-    fig.update_yaxes(title='Magnitude')
-    st.plotly_chart(fig)
-
+    fig.update_layout(title=graph_title)
+    fig.update_xaxes(title=x_title)
+    fig.update_yaxes(title=y_title)
+    st.plotly_chart(fig,use_container_width=True)
 
 def frequencyDomain(signal, sample_rate):
     freq = np.fft.rfft(signal)
@@ -39,7 +27,6 @@ def frequencyDomain(signal, sample_rate):
     freq_phase=np.angle(freq,deg=False)
     fft_spectrum = np.fft.rfftfreq(signal.size, 1/sample_rate)
     return  freq_magnitude,freq_phase,fft_spectrum
-
 
 ## list = [{frequency_1: 5, frequency_2: 10, gain_db:2}]
 def edit_frequency(freq_spectrum,freq_magnitude,sample_rate, edit_list):

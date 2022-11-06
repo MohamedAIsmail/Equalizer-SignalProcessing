@@ -12,6 +12,7 @@ from scipy import signal
 
 def readAudioFile(fileName):
     audio_file = wave.open(fileName, 'rb')
+    
     if 'audio_player' not in st.session_state:
         st.session_state['audio_player'] = open(fileName, 'rb')
 
@@ -91,8 +92,8 @@ def frequencyDomain(signalData, sampleFrequency):
     :return: average temperature
     """
     freq = np.fft.rfft(signalData)
-    if 'freq_magnitude' not in st.session_state:
-        st.session_state['freq_magnitude'] = np.abs(freq)
+
+    st.session_state['freq_magnitude'] = np.abs(freq)
     freq_phase = np.angle(freq, deg=False)
     fft_spectrum = np.fft.rfftfreq(signalData.size, 1/sampleFrequency)
     return st.session_state.freq_magnitude, freq_phase, fft_spectrum
@@ -144,6 +145,7 @@ def signal_to_wav(signal, sample_rate):
     : no return:
     """
     signal = np.int16(signal)
-    wavfile.write("file.wav", 2*sample_rate, signal)
+    wavfile.write("file.wav", sample_rate, signal)
+
     st.session_state.audio_player = open("file.wav", 'rb')
     return st.session_state.audio_player

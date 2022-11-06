@@ -30,9 +30,9 @@ sliderData = fn.Sliders(sliderColumns)
 
 alphabetArr = [('Alphabet'), ('A'), ('B'), ('C'), ('D'), ('E'),
                ('F'), ('G'), ('H'), ('I'), ('J')]
-alphabetList = [{'frequency_1': 0, 'frequency_2': 50, 'gain_db': sliderData[0][1]}, {
-    'frequency_1': 50, 'frequency_2': 100, 'gain_db': sliderData[1][1]}, {'frequency_1': 300, 'frequency_2': 500, 'gain_db': sliderData[2][1]},
-    {'frequency_1': 500, 'frequency_2': 1000, 'gain_db': sliderData[3][1]}, {'frequency_1': 1000, 'frequency_2': 2000, 'gain_db': sliderData[4][1]}]
+alphabetList = [{'frequency_1': 100, 'frequency_2': 700, 'gain_db': sliderData[0][1]}, {
+    'frequency_1': 700, 'frequency_2': 800, 'gain_db': sliderData[1][1]}, {'frequency_1': 800, 'frequency_2': 1200, 'gain_db': sliderData[2][1]},
+    {'frequency_1': 1200, 'frequency_2': 1500, 'gain_db': sliderData[3][1]}, {'frequency_1': 1500, 'frequency_2': 4000, 'gain_db': sliderData[4][1]}]
 
 for idx, i in enumerate(alphabetArr):
     with textColumns[idx]:
@@ -43,20 +43,22 @@ for idx, i in enumerate(alphabetArr):
 
 
 if (uploadedAudio):
-
-    # ---------------------------------------------- CALCULATIONS -----------------------------
     audio_file, st.session_state.audio_player = fn.readAudioFile(
         uploadedAudio.name)  # Read audio file uploaded
 
+    # ---------------------------------------------- CALCULATIONS -----------------------------
     # Calculate sample frequency from wav File
     sample_freq = audio_file.getframerate()
     n_samples = audio_file.getnframes()         # Get total number of samples
+
     # List containing magnitude values of signal
     single_wave = audio_file.readframes(-1)
     t_audio = n_samples / sample_freq           # Max time of the audio
+
     if 'audioData' not in st.session_state:
         st.session_state['audioData'] = fn.np.frombuffer(
             single_wave, dtype=fn.np.int16)
+
     time = fn.np.linspace(0, t_audio, n_samples)
 
     st.session_state.freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
@@ -75,6 +77,7 @@ if (uploadedAudio):
 
         st.session_state.audioData = fn.inverse_fourier(
             st.session_state.freq_magnitude, freq_phase)
+
         st.session_state.audio_player = fn.signal_to_wav(
             st.session_state.audioData, sample_freq)
 
@@ -98,6 +101,12 @@ if (uploadedAudio):
 
 
 else:
+    if 'audio_player' in st.session_state:
+        del st.session_state['audio_player']
+    if 'freq_magnitude' in st.session_state:
+        del st.session_state['freq_magnitude']
+    if 'audioData' in st.session_state:
+        del st.session_state['audioData']
     with rightColumn:
         fn.plot([], [6], 'Original Signal',
                 'Time (s)', 'Amplitude (mV)', 7)

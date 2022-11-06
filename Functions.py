@@ -3,20 +3,21 @@ import streamlit as st  # 🎈 data web app development
 import pandas as pd  # read csv, df manipulation
 import numpy as np
 import plotly as pt
-import wave
+
 import streamlit_vertical_slider as svs
+
 from scipy.io.wavfile import read, write
 from scipy.io import wavfile
 from scipy import signal
 
 
 def readAudioFile(fileName):
-    audio_file = wave.open(fileName, 'rb')
-    
-    if 'audio_player' not in st.session_state:
-        st.session_state['audio_player'] = open(fileName, 'rb')
+    sample_freq, audioData = read("Audios\\" + fileName)
 
-    return audio_file, st.session_state.audio_player
+    if 'audio_player' not in st.session_state:
+        st.session_state['audio_player'] = open("Audios\\" + fileName, 'rb')
+
+    return audioData, sample_freq, st.session_state.audio_player
 
 
 def Sliders(sliderColumns):
@@ -92,7 +93,6 @@ def frequencyDomain(signalData, sampleFrequency):
     :return: average temperature
     """
     freq = np.fft.rfft(signalData)
-
     st.session_state['freq_magnitude'] = np.abs(freq)
     freq_phase = np.angle(freq, deg=False)
     fft_spectrum = np.fft.rfftfreq(signalData.size, 1/sampleFrequency)
@@ -132,7 +132,9 @@ def inverse_fourier(mag, phase):
     :return: list of time domain signal after transformation 
     """
     complex_rect = mag * np.cos(phase) + 1j*mag * np.sin(phase)
+
     inverse_forurier = np.fft.irfft(complex_rect)
+
     return inverse_forurier
 
 
@@ -144,8 +146,10 @@ def signal_to_wav(signal, sample_rate):
         sample_rate :  signal sample rate 
     : no return:
     """
-    signal = np.int16(signal)
-    wavfile.write("file.wav", sample_rate, signal)
 
-    st.session_state.audio_player = open("file.wav", 'rb')
+    signal = np.int16(signal)
+    wavfile.write("edited.wav", sample_rate, signal)
+
+    st.session_state.audio_player = open("edited.wav", 'rb')
+
     return st.session_state.audio_player

@@ -30,6 +30,7 @@ sliderData = fn.Sliders(sliderColumns)
 
 alphabetArr = [('Alphabet'), ('A'), ('B'), ('C'), ('D'), ('E'),
                ('F'), ('G'), ('H'), ('I'), ('J')]
+
 alphabetList = [{'frequency_1': 100, 'frequency_2': 700, 'gain_db': sliderData[0][1]}, {
     'frequency_1': 700, 'frequency_2': 800, 'gain_db': sliderData[1][1]}, {'frequency_1': 800, 'frequency_2': 1200, 'gain_db': sliderData[2][1]},
     {'frequency_1': 1200, 'frequency_2': 1500, 'gain_db': sliderData[3][1]}, {'frequency_1': 1500, 'frequency_2': 4000, 'gain_db': sliderData[4][1]}]
@@ -43,23 +44,16 @@ for idx, i in enumerate(alphabetArr):
 
 
 if (uploadedAudio):
-    audio_file, st.session_state.audio_player = fn.readAudioFile(
+    audioData, sample_freq, st.session_state.audio_player = fn.readAudioFile(
         uploadedAudio.name)  # Read audio file uploaded
 
     # ---------------------------------------------- CALCULATIONS -----------------------------
-    # Calculate sample frequency from wav File
-    sample_freq = audio_file.getframerate()
-    n_samples = audio_file.getnframes()         # Get total number of samples
-
-    # List containing magnitude values of signal
-    single_wave = audio_file.readframes(-1)
-    t_audio = n_samples / sample_freq           # Max time of the audio
+    t_audio = len(audioData) / sample_freq           # Max time of the audio
 
     if 'audioData' not in st.session_state:
-        st.session_state['audioData'] = fn.np.frombuffer(
-            single_wave, dtype=fn.np.int16)
+        st.session_state['audioData'] = audioData
 
-    time = fn.np.linspace(0, t_audio, n_samples)
+    time = fn.np.linspace(0, t_audio, len(audioData))
 
     st.session_state.freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
         st.session_state.audioData, sample_freq)
@@ -84,6 +78,7 @@ if (uploadedAudio):
     with rightColumn:  # Plot the normal signal
         fn.plot(time, st.session_state.audioData, 'Time Domain',
                 'Time (s)', 'Amplitude (mV)', t_audio)
+
     with subRightColumn:  # Plot the frequency domain
         fn.plot(fft_spectrum, st.session_state.freq_magnitude, 'Frequency Domain',
                 'Frequency (Hz)', 'Magnitude', 1400)
@@ -113,3 +108,6 @@ else:
     with subRightColumn:
         fn.plot([], [], 'Frequency Domain',
                 'Frequency (Hz)', 'Magnitude', 1000)
+    with audioRightCol:  # Audio Play
+        with open('Audios\Default.wav', 'rb') as fp:
+            st.audio(fp, format='audio/wav')

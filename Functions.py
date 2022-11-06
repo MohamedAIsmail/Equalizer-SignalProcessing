@@ -12,8 +12,10 @@ from scipy import signal
 
 def readAudioFile(fileName):
     audio_file = wave.open(fileName, 'rb')
-    audio_player = open(fileName, 'rb')
-    return audio_file, audio_player
+    if 'audio_player' not in st.session_state:
+        st.session_state['audio_player'] = open(fileName, 'rb')
+
+    return audio_file, st.session_state.audio_player
 
 
 def Sliders(sliderColumns):
@@ -22,7 +24,7 @@ def Sliders(sliderColumns):
     for idx in range(0, 11):
         with sliderColumns[idx]:
             if (idx == 0):
-                st.header('')
+                st.header('')  # GUI USAGE
                 st.header('')
                 st.header('Power (dB)')
             else:
@@ -56,14 +58,14 @@ def plot(x_points, y_points, graph_title, x_title, y_title, range):
 
 
 def plotSpectrogram(audioData, fs, Title):
-    N = 1000
+    N = 512
     w = signal.blackman(N)
-    freqs, bins, Pxx = signal.spectrogram(audioData, fs, window=w, nfft=N)
+    freqs, time, Pxx = signal.spectrogram(audioData, fs, window=w, nfft=N)
 
     layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=30,))
     fig = go.Figure(layout=layout)
 
-    fig.add_trace(go.Heatmap(x=bins, y=freqs, z=10*np.log10(Pxx),
+    fig.add_trace(go.Heatmap(x=time, y=freqs, z=10*np.log10(Pxx),
                   colorscale='Jet', name='Spectrogram'))
 
     fig.update_layout(height=300, title={
@@ -80,22 +82,23 @@ def plotSpectrogram(audioData, fs, Title):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def frequencyDomain(signal, sampleFrequency):
+def frequencyDomain(signalData, sampleFrequency):
     """
     fourier transform to frequency domain
     :param 
-        signal: list of time domain signal points 
-        sample_rate: int of sample rate for signal (Hz)
+        signalData: list of time domain signal points 
+        sampleFrequency: int of sample rate for signal (Hz)
     :return: average temperature
     """
-    freq = np.fft.rfft(signal)
-    freq_magnitude = np.abs(freq)
+    freq = np.fft.rfft(signalData)
+    if 'freq_magnitude' not in st.session_state:
+        st.session_state['freq_magnitude'] = np.abs(freq)
     freq_phase = np.angle(freq, deg=False)
-    fft_spectrum = np.fft.rfftfreq(signal.size, 1/sampleFrequency)
-    return freq_magnitude, freq_phase, fft_spectrum
+    fft_spectrum = np.fft.rfftfreq(signalData.size, 1/sampleFrequency)
+    return st.session_state.freq_magnitude, freq_phase, fft_spectrum
 
 
-def edit_frequency(freq_spectrum, freq_magnitude, sample_rate, edit_list):
+def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
     """
     edit frequecny range with ceratin gain
     :equation used
@@ -103,7 +106,7 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_rate, edit_list):
     :param 
         freq_spectrum : list of frequencies values in a certain signal
         freq_magnitude :  list of frequencies magnitudes in a certain signal
-        sample_rate: int of sample rate for signal (Hz)
+        sample_freq: int of sample rate for signal (Hz)
         edit_list: list of objects with a structrue:
                     [......{frequency_1: 5, frequency_2: 10, gain_db:2}]
                         frequency_1: start range of frequencies to be changed
@@ -111,7 +114,7 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_rate, edit_list):
                         gain_db: gain value ti change in decieble scale
     :return: list of edited frequency magnitudes 
     """
-    frequency_points = len(freq_spectrum)/(sample_rate/2)
+    frequency_points = len(freq_spectrum)/(sample_freq/2)
     for edit in edit_list:
         freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = np.sqrt(
             (10**(edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]**2)))
@@ -142,5 +145,5 @@ def signal_to_wav(signal, sample_rate):
     """
     signal = np.int16(signal)
     wavfile.write("file.wav", 2*sample_rate, signal)
-    return
-
+    st.session_state.audio_player = open("file.wav", 'rb')
+    return st.session_state.audio_player

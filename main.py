@@ -32,18 +32,37 @@ with left_col:
 # Saving the value of the sliders in a list [(1,0), (2,9)] ..
 slider_data = fn.Sliders(sliders_cols)
 
+#alphabet mode
 alphabetArr = [('Alphabet'), ('A'), ('B'), ('C'), ('D'), ('E'),
                ('F'), ('G'), ('H'), ('I'), ('J')]
-alphabetList = [{'frequency_1': 100, 'frequency_2': 700, 'gain_db': slider_data[0][1]}, {
-    'frequency_1': 700, 'frequency_2': 800, 'gain_db': slider_data[1][1]}, {'frequency_1': 800, 'frequency_2': 1200, 'gain_db': slider_data[2][1]},
-    {'frequency_1': 1200, 'frequency_2': 1500, 'gain_db': slider_data[3][1]}, {'frequency_1': 1500, 'frequency_2': 4000, 'gain_db': slider_data[4][1]}]
-
+alphabetList = [{'frequency_1': 100, 'frequency_2': 700, 'gain_db': slider_data[0][1]}, 
+                {'frequency_1': 700, 'frequency_2': 800, 'gain_db': slider_data[1][1]},
+                {'frequency_1': 800, 'frequency_2': 1200, 'gain_db': slider_data[2][1]},
+                {'frequency_1': 1200, 'frequency_2': 1500, 'gain_db': slider_data[3][1]}, 
+                {'frequency_1': 1500, 'frequency_2': 4000, 'gain_db': slider_data[4][1]}
+                ]
 for idx, i in enumerate(alphabetArr):
     with labels_cols[idx]:
         if (idx == 0):
             st.header(alphabetArr[idx])
         else:
             st.text(alphabetArr[idx])
+
+#musical mode
+musicalArr=[('instruments'),('bass'), ('trombone'), ('clarinet'),
+           ('piccolo'),('viola')]
+musicalList = [ {'frequency_1': 0, 'frequency_2': 128, 'gain_db': slider_data[0][1]}, #bass
+                {'frequency_1': 128, 'frequency_2': 550, 'gain_db': slider_data[1][1]}, #trombone 
+                {'frequency_1': 550, 'frequency_2': 1000, 'gain_db': slider_data[2][1]}, #E-flat clarinet
+                {'frequency_1': 1000, 'frequency_2': 2000, 'gain_db': slider_data[3][1]}, #piccolo
+                {'frequency_1': 2000, 'frequency_2': 20000, 'gain_db': slider_data[4][1]}, #viola
+                ] 
+for idx, i in enumerate(musicalArr):
+    with labels_cols[idx]:
+        if (idx == 0):
+            st.header(musicalArr[idx])
+        else:
+            st.text(musicalArr[idx])
 
 
 if (uploaded_audio):
@@ -63,8 +82,12 @@ if (uploaded_audio):
 
 # Applying slider values on the frequency magnitude
     if (apply_btn):
+        # st.session_state.freq_magnitude = fn.edit_frequency(
+        #     fft_spectrum, st.session_state.freq_magnitude, sample_freq, alphabetList)
+         
         st.session_state.freq_magnitude = fn.edit_frequency(
-            fft_spectrum, st.session_state.freq_magnitude, sample_freq, alphabetList)
+            fft_spectrum, st.session_state.freq_magnitude, sample_freq, musicalList)
+
 
         st.session_state.audio_data = fn.inverse_fourier(
             st.session_state.freq_magnitude, freq_phase)
@@ -106,5 +129,5 @@ else:
         fn.plot([], [], 'Frequency Domain',
                 'Frequency (Hz)', 'Magnitude', 1000)
     with audio_right_col:  # Audio Play
-        with open('Audios\Default.wav', 'rb') as fp:
+        with open('Audios/Default.wav', 'rb') as fp:
             st.audio(fp, format='audio/wav')

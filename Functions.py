@@ -13,6 +13,7 @@ import scipy.io
 
 def readAudioFile(fileName):
     sample_freq, audioData = read("Audios\\" + fileName)
+   
 
     if 'audio_player' not in st.session_state:
         st.session_state['audio_player'] = open("Audios\\" + fileName, 'rb')

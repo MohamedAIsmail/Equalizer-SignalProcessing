@@ -1,1 +1,6 @@
-
+[
+  {
+    "Modes": ["Basic", "Vowels", "Medical Signals", "Musical instruments"],
+    "Extension": [["wav"], ["wav"], ["mat"], ["wav"]]
+  }
+]

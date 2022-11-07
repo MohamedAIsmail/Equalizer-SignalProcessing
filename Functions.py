@@ -3,12 +3,12 @@ import streamlit as st  # 🎈 data web app development
 import pandas as pd  # read csv, df manipulation
 import numpy as np
 import plotly as pt
-
 import streamlit_vertical_slider as svs
-
 from scipy.io.wavfile import read, write
 from scipy.io import wavfile
 from scipy import signal
+import scipy.io
+
 
 
 def readAudioFile(fileName):
@@ -90,7 +90,7 @@ def frequencyDomain(signalData, sampleFrequency):
     :param 
         signalData: list of time domain signal points 
         sampleFrequency: int of sample rate for signal (Hz)
-    :return: average temperature
+    :return: 3 lists (1- freq magnitude, 2-freq phase, frequency spectrum(x-axis))
     """
     freq = np.fft.rfft(signalData)
     st.session_state['freq_magnitude'] = np.abs(freq)
@@ -132,9 +132,7 @@ def inverse_fourier(mag, phase):
     :return: list of time domain signal after transformation 
     """
     complex_rect = mag * np.cos(phase) + 1j*mag * np.sin(phase)
-
     inverse_forurier = np.fft.irfft(complex_rect)
-
     return inverse_forurier
 
 
@@ -146,10 +144,35 @@ def signal_to_wav(signal, sample_rate):
         sample_rate :  signal sample rate 
     : no return:
     """
-
     signal = np.int16(signal)
     wavfile.write("edited.wav", sample_rate, signal)
-
     st.session_state.audio_player = open("edited.wav", 'rb')
-
     return st.session_state.audio_player
+
+def open_mat(mat_file):
+    """
+        Open .Mat file for medical signal files
+        :param 
+        wav_file : uploaded mat file 
+        :return:
+            time-> list for x-axis(time) points 
+            signal_array-> list for y-axis(amplitude)(V) points 
+            sample_rate-> sample rate for the signal
+    """
+    file_data= scipy.io.loadmat(mat_file)
+    signal_array=file_data["val"][0]/(200)
+    signal_array=signal_array*10**-3  # in V
+    #VIP: convert to volts to fourir inverse correctly
+    time = np.linspace(0.0,10, len(signal_array))
+    sample_rate= len(signal_array)/10
+    return time,signal_array,sample_rate
+
+def open_wav (uploaded_audio):
+    audio_data, sample_freq, st.session_state.audio_player = readAudioFile(
+    uploaded_audio.name)  # Read audio file uploaded
+    t_audio = len(audio_data) / sample_freq         
+    if 'audio_data' not in st.session_state:
+        st.session_state['audio_data'] = audio_data
+    time = np.linspace(0, t_audio, len(audio_data))
+    st.session_state.freq_magnitude, freq_phase, fft_spectrum = frequencyDomain(
+        st.session_state.audio_data, sample_freq)

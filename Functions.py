@@ -10,15 +10,18 @@ from scipy import signal
 import scipy.io
 
 
-
 def readAudioFile(fileName):
     sample_freq, audioData = read("Audios\\" + fileName)
-   
+    t_audio = len(audioData) / sample_freq
 
+    if 'signalData' not in st.session_state:
+        st.session_state['signalData'] = audioData
     if 'audio_player' not in st.session_state:
         st.session_state['audio_player'] = open("Audios\\" + fileName, 'rb')
 
-    return audioData, sample_freq, st.session_state.audio_player
+    time = np.linspace(0, t_audio, len(audioData))
+
+    return st.session_state.signalData, time, t_audio, sample_freq, st.session_state.audio_player
 
 
 def Sliders(sliderColumns, sliders_num):
@@ -150,6 +153,7 @@ def signal_to_wav(signal, sample_rate):
     st.session_state.audio_player = open("edited.wav", 'rb')
     return st.session_state.audio_player
 
+
 def open_mat(mat_file):
     """
         Open .Mat file for medical signal files
@@ -160,10 +164,12 @@ def open_mat(mat_file):
             signal_array-> list for y-axis(amplitude)(V) points 
             sample_rate-> sample rate for the signal
     """
-    file_data= scipy.io.loadmat(mat_file)
-    signal_array=file_data["val"][0]/(200)
-    signal_array=signal_array*10**-3  # in V
-    #VIP: convert to volts to fourir inverse correctly
-    time = np.linspace(0.0,10, len(signal_array))
-    sample_rate= len(signal_array)/10
-    return time,signal_array,sample_rate
+    file_data = scipy.io.loadmat(mat_file)
+    signal_array = file_data["val"][0]/(200)
+    signal_array = signal_array*10**-3  # in V
+
+    # VIP: convert to volts to fourir inverse correctly
+    st.session_state['signalData'] = signal_array
+    time = np.linspace(0.0, 10, len(signal_array))
+    sample_rate = 360
+    return time, signal_array, sample_rate

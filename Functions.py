@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st  # 🎈 data web app development
 import pandas as pd  # read csv, df manipulation
 import numpy as np
@@ -14,14 +15,12 @@ def readAudioFile(fileName):
     sample_freq, audioData = read("Audios\\" + fileName)
     t_audio = len(audioData) / sample_freq
 
-    if 'signalData' not in st.session_state:
-        st.session_state['signalData'] = audioData
     if 'audio_player' not in st.session_state:
         st.session_state['audio_player'] = open("Audios\\" + fileName, 'rb')
 
     time = np.linspace(0, t_audio, len(audioData))
 
-    return st.session_state.signalData, time, t_audio, sample_freq, st.session_state.audio_player
+    return audioData, time, t_audio, sample_freq, st.session_state.audio_player
 
 
 def Sliders(sliderColumns, sliders_num):
@@ -44,47 +43,52 @@ def Sliders(sliderColumns, sliders_num):
     return adjusted_data
 
 
-def plot(x_points, y_points, graph_title, x_title, y_title, range):
-    layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=30,))
-    fig = go.Figure(layout=layout)
-    fig.add_trace(go.Scatter(x=x_points, y=y_points,
-                             mode='lines'))
-    fig.update_layout(height=300, title={
-        'text': graph_title,
-        'y': 1,
-        'x': 0.49,
-        'xanchor': 'center',
-        'yanchor': 'top'},
-        title_font=dict(
-        family="Arial",
-        size=17))
-    fig.update_xaxes(title=x_title, range=[0, range])
-    fig.update_yaxes(title=y_title)
+def plot(time, amplitude, invAmplitude, x_title, y_title, range):
+
+    fig = make_subplots(rows=1, cols=2, shared_yaxes=True,
+                        horizontal_spacing=0.01)
+
+    fig.add_trace(go.Scatter(x=time, y=amplitude,
+                             mode='lines'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=invAmplitude,
+                             mode='lines'), row=1, col=2)
+
+    fig.update_xaxes(range=[0, range], title=x_title)
+    fig.update_layout(margin=dict(l=0, r=0, b=0, t=0), height=200,
+                      title_font=dict(
+                          family="Arial",
+                          size=17),
+                      showlegend=False,
+                      yaxis_title='Amplitude (mV)')
+
     st.plotly_chart(fig, use_container_width=True)
 
 
-def plotSpectrogram(audioData, fs, Title):
+def plotSpectrogram(amplitude, invAmplitude, fs, range):
     N = 512
     w = signal.blackman(N)
-    freqs, time, Pxx = signal.spectrogram(audioData, fs, window=w, nfft=N)
+    nFreqs, nTime, nPxx = signal.spectrogram(amplitude, fs, window=w, nfft=N)
+
+    if (invAmplitude == []):
+        invFreqs, invTime, invPXX = [], [], []
+    else:
+        invFreqs, invTime, invPXX = signal.spectrogram(
+            invAmplitude, fs, window=w, nfft=N)
 
     layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=30,))
-    fig = go.Figure(layout=layout)
+    fig = go.Figure(layout=layout).set_subplots(rows=1, cols=2, shared_yaxes=True,
+                                                horizontal_spacing=0.01)
 
-    fig.add_trace(go.Heatmap(x=time, y=freqs, z=10*np.log10(Pxx),
-                  colorscale='Jet', name='Spectrogram'))
+    fig.add_trace(go.Heatmap(x=nTime, y=nFreqs, z=10*np.log10(nPxx),
+                  colorscale='Jet', name='Spectrogram'), row=1, col=1)
+    fig.add_trace(go.Heatmap(x=invTime, y=invFreqs, z=10*np.log10(invPXX),
+                  colorscale='Jet', name='Spectrogram'), row=1, col=2)
 
-    fig.update_layout(height=300, title={
-        'text': Title,
-        'y': 1,
-        'x': 0.49,
-        'xanchor': 'center',
-        'yanchor': 'top'},
-        title_font=dict(
-        family="Arial",
-        size=17))
-    fig.update_xaxes(title='Time')
-    fig.update_yaxes(title='Frequency')
+    fig.update_layout(height=300,
+                      title_font=dict(
+                          family="Arial",
+                          size=17), yaxis_title='Frequency (Hz)')
+    fig.update_xaxes(range=[0, range], title='Time (s)')
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -136,8 +140,8 @@ def inverse_fourier(mag, phase):
     :return: list of time domain signal after transformation 
     """
     complex_rect = mag * np.cos(phase) + 1j*mag * np.sin(phase)
-    inverse_forurier = np.fft.irfft(complex_rect)
-    return inverse_forurier
+    st.session_state['inverseFourier'] = np.fft.irfft(complex_rect)
+    return st.session_state.inverseFourier
 
 
 def signal_to_wav(signal, sample_rate):

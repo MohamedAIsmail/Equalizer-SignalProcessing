@@ -8,11 +8,12 @@ st.set_page_config(page_title="Equalizer",
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
 basic_data_file = open('data.json')
 basic_data = json.load(basic_data_file)[0]
 
 # Columns for GUI
-left_col, right_col, sub_right_col = st.columns((1, 2, 2))
+left_col, right_col = st.columns((1, 4))
 left_spectrogram_col, right_spectrogram_col, sub_right_spectrogram_col = st.columns(
     (1, 2, 2))
 audio_left_col, audio_right_col = st.columns((1, 4))
@@ -64,14 +65,14 @@ musicalList = [{'frequency_1': 0, 'frequency_2': 128, 'gain_db': slider_data[0][
 
 if (uploaded_audio):
     if (chosen_mode_index == 2):
-        st.session_state.signalData, time, sample_freq = fn.open_mat(
+        signalData, time, sample_freq = fn.open_mat(
             uploaded_audio)
     else:
-        st.session_state.signalData, time, timeRange, sample_freq, st.session_state.audio_player = fn.readAudioFile(
+        signalData, time, timeRange, sample_freq, st.session_state.audio_player = fn.readAudioFile(
             uploaded_audio.name)  # Read audio file uploaded
 
     st.session_state.freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
-        st.session_state.signalData, sample_freq)
+        signalData, sample_freq)
     maxFFT_spectrum = max(fft_spectrum)
 
     with left_col:
@@ -82,29 +83,22 @@ if (uploaded_audio):
     if (apply_btn):
         st.session_state.freq_magnitude = fn.edit_frequency(
             fft_spectrum, st.session_state.freq_magnitude, sample_freq, musicalList)
-        st.session_state.signalData = fn.inverse_fourier(
+        st.session_state.inverseFourier = fn.inverse_fourier(
             st.session_state.freq_magnitude, freq_phase)
         st.session_state.audio_player = fn.signal_to_wav(
-            st.session_state.signalData, sample_freq)
+            st.session_state.inverseFourier, sample_freq)
 
     with right_col:  # Plot the normal signal
-        fn.plot(time, st.session_state.signalData, 'Time Domain',
+        if 'inverseFourier' not in st.session_state:
+            st.session_state['inverseFourier'] = []
+        fn.plot(time, signalData, st.session_state.inverseFourier,
                 'Time (s)', 'Amplitude (mV)', timeRange)
-
-    with sub_right_col:  # Plot the frequency domain
-        fn.plot(fft_spectrum, st.session_state.freq_magnitude, 'Frequency Domain',
-                'Frequency (Hz)', 'Magnitude', maxFFT_spectrum)
+        if (spectro_mode):
+            fn.plotSpectrogram(signalData, st.session_state.inverseFourier,
+                               sample_freq, 'Time (s)', 'Frequency (Hz)', timeRange)
 
     with audio_right_col:  # Audio Play
         st.audio(st.session_state.audio_player, format='audio/wav')
-
-    if (spectro_mode):
-        with right_spectrogram_col:
-            fn.plotSpectrogram(st.session_state.signalData,
-                               sample_freq, 'Input Spectrogram')
-        with sub_right_spectrogram_col:
-            fn.plotSpectrogram(
-                st.session_state.freq_magnitude, sample_freq, 'Output Spectrogram')
 
 
 else:
@@ -112,14 +106,10 @@ else:
         del st.session_state['audio_player']
     if 'freq_magnitude' in st.session_state:
         del st.session_state['freq_magnitude']
-    if 'signalData' in st.session_state:
-        del st.session_state['signalData']
+    if 'inverseFourier' in st.session_state:
+        del st.session_state['inverseFourier']
     with right_col:
-        fn.plot([], [6], 'Original Signal',
-                'Time (s)', 'Amplitude (mV)', 7)
-    with sub_right_col:
-        fn.plot([], [], 'Frequency Domain',
-                'Frequency (Hz)', 'Magnitude', 1000)
+        fn.plot([], [], [], 'Time (s)', 'Amplitude (mV)', 7)
     with audio_right_col:  # Audio Play
         with open('Audios/Default.wav', 'rb') as fp:
             st.audio(fp, format='audio/wav')

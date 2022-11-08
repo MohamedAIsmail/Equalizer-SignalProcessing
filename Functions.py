@@ -21,10 +21,10 @@ def readAudioFile(fileName):
     return audioData, sample_freq, st.session_state.audio_player
 
 
-def Sliders(sliderColumns):
+def Sliders(sliderColumns, sliders_num):
     adjusted_data = []
     sliders = {}
-    for idx in range(0, 11):
+    for idx in range(0, sliders_num):
         with sliderColumns[idx]:
             if (idx == 0):
                 st.header('')  # GUI USAGE
@@ -167,13 +167,3 @@ def open_mat(mat_file):
     time = np.linspace(0.0,10, len(signal_array))
     sample_rate= len(signal_array)/10
     return time,signal_array,sample_rate
-
-def open_wav (uploaded_audio):
-    audio_data, sample_freq, st.session_state.audio_player = readAudioFile(
-    uploaded_audio.name)  # Read audio file uploaded
-    t_audio = len(audio_data) / sample_freq         
-    if 'audio_data' not in st.session_state:
-        st.session_state['audio_data'] = audio_data
-    time = np.linspace(0, t_audio, len(audio_data))
-    st.session_state.freq_magnitude, freq_phase, fft_spectrum = frequencyDomain(
-        st.session_state.audio_data, sample_freq)

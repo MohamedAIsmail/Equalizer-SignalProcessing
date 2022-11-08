@@ -50,17 +50,11 @@ for idx, i in enumerate(basic_data["Labels"][chosen_mode_index]):
             st.text(basic_data["Labels"][chosen_mode_index][idx])
 
 # musical mode
-musicalList = [{'frequency_1': 0, 'frequency_2': 128, 'gain_db': slider_data[0][1]},  # bass
-               {'frequency_1': 128, 'frequency_2': 550,
-                   'gain_db': slider_data[1][1]},  # trombone
-               {'frequency_1': 550, 'frequency_2': 1000,
-                'gain_db': slider_data[2][1]},  # E-flat clarinet
-               {'frequency_1': 1000, 'frequency_2': 2000,
-                'gain_db': slider_data[3][1]},  # piccolo
-               {'frequency_1': 2000, 'frequency_2': 4000,
-                'gain_db': slider_data[4][1]},
-               # {'frequency_1': 2000, 'frequency_2': 20000, 'gain_db': slider_data[4][1]}, #viola
-               ]
+musicalList = [ {'frequency_1': 0, 'frequency_2': 350, 'gain_db': slider_data[0][1]}, #bass
+                {'frequency_1': 350, 'frequency_2': 1000, 'gain_db': slider_data[1][1]}, #xylophone 
+                {'frequency_1': 860, 'frequency_2': 4000, 'gain_db': slider_data[2][1]}, #trombone
+                {'frequency_1': 4200, 'frequency_2': 23000, 'gain_db': slider_data[3][1]} #triangle
+              ]   
 
 
 if (uploaded_audio):

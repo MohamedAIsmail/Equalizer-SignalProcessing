@@ -33,15 +33,6 @@ with left_col:
 slider_data = fn.Sliders(sliders_cols, len(
     basic_data["Labels"][chosen_mode_index]))
 
-alphabetList = [{'frequency_1': 100, 'frequency_2': 700, 'gain_db': slider_data[0][1]},
-                {'frequency_1': 700, 'frequency_2': 800,
-                    'gain_db': slider_data[1][1]},
-                {'frequency_1': 800, 'frequency_2': 1200,
-                    'gain_db': slider_data[2][1]},
-                {'frequency_1': 2000, 'frequency_2': 4000,
-                    'gain_db': slider_data[3][1]},
-                # {'frequency_1': 1500, 'frequency_2': 4000, 'gain_db': slider_data[4][1]}
-                ]
 for idx, i in enumerate(basic_data["Labels"][chosen_mode_index]):
     with labels_cols[idx]:
         if (idx == 0):
@@ -49,13 +40,9 @@ for idx, i in enumerate(basic_data["Labels"][chosen_mode_index]):
         else:
             st.text(basic_data["Labels"][chosen_mode_index][idx])
 
-# musical mode
-musicalList = [ {'frequency_1': 0, 'frequency_2': 350, 'gain_db': slider_data[0][1]}, #bass
-                {'frequency_1': 350, 'frequency_2': 1000, 'gain_db': slider_data[1][1]}, #xylophone 
-                {'frequency_1': 860, 'frequency_2': 4000, 'gain_db': slider_data[2][1]}, #trombone
-                {'frequency_1': 4200, 'frequency_2': 23000, 'gain_db': slider_data[3][1]} #triangle
-              ]   
-
+edit_list=[]
+for counter in range (0,len(basic_data["Labels"][chosen_mode_index])-1):
+    edit_list.append({'frequency_1': basic_data["freq_ranges"][chosen_mode_index][counter][0], 'frequency_2': basic_data["freq_ranges"][chosen_mode_index][counter][1], 'gain_db': slider_data[counter][1]})
 
 if (uploaded_audio):
     if (chosen_mode_index == 2):
@@ -71,12 +58,11 @@ if (uploaded_audio):
 
     with left_col:
         spectro_mode = st.checkbox('Show Spectrogram')
-    # ----------------------------------------------------- PLOTTING -------------------------------------
 
 # Applying slider values on the frequency magnitude
     if (apply_btn):
         st.session_state.freq_magnitude = fn.edit_frequency(
-            fft_spectrum, st.session_state.freq_magnitude, sample_freq, musicalList)
+            fft_spectrum, st.session_state.freq_magnitude, sample_freq, edit_list)
         st.session_state.inverseFourier = fn.inverse_fourier(
             st.session_state.freq_magnitude, freq_phase)
         st.session_state.audio_player = fn.signal_to_wav(

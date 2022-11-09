@@ -9,18 +9,16 @@ from scipy.io.wavfile import read, write
 from scipy.io import wavfile
 from scipy import signal
 import scipy.io
+import altair as alt
 
 
-def readAudioFile(fileName):
-    sample_freq, audioData = read("Audios\\" + fileName)
-    t_audio = len(audioData) / sample_freq
 
-    if 'audio_player' not in st.session_state:
-        st.session_state['audio_player'] = open("Audios\\" + fileName, 'rb')
-
-    time = np.linspace(0, t_audio, len(audioData))
-
-    return audioData, time, t_audio, sample_freq, st.session_state.audio_player
+def readAudioFile(file_name):
+    sample_freq, audio_data = read("Audios\\" + file_name)
+    t_audio = len(audio_data) / sample_freq
+    audio_palyer=open("Audios\\" + file_name, 'rb')
+    time = np.linspace(0, t_audio, len(audio_data))
+    return audio_data, time, t_audio, sample_freq, audio_palyer
 
 
 def Sliders(sliderColumns, sliders_num):
@@ -60,7 +58,6 @@ def plot(time, amplitude, invAmplitude, x_title, y_title, range):
                           size=17),
                       showlegend=False,
                       yaxis_title='Amplitude (mV)')
-
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -92,19 +89,19 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def frequencyDomain(signalData, sampleFrequency):
+def frequencyDomain(signal_data, sampleFrequency):
     """
     fourier transform to frequency domain
     :param 
-        signalData: list of time domain signal points 
+        signal_data: list of time domain signal points 
         sampleFrequency: int of sample rate for signal (Hz)
     :return: 3 lists (1- freq magnitude, 2-freq phase, frequency spectrum(x-axis))
     """
-    freq = np.fft.rfft(signalData)
-    st.session_state['freq_magnitude'] = np.abs(freq)
+    freq = np.fft.rfft(signal_data)
+    freq_magnitude = np.abs(freq)
     freq_phase = np.angle(freq, deg=False)
-    fft_spectrum = np.fft.rfftfreq(signalData.size, 1/sampleFrequency)
-    return st.session_state.freq_magnitude, freq_phase, fft_spectrum
+    fft_spectrum = np.fft.rfftfreq(signal_data.size, 1/sampleFrequency)
+    return freq_magnitude, freq_phase, fft_spectrum
 
 
 def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
@@ -140,8 +137,8 @@ def inverse_fourier(mag, phase):
     :return: list of time domain signal after transformation 
     """
     complex_rect = mag * np.cos(phase) + 1j*mag * np.sin(phase)
-    st.session_state['inverseFourier'] = np.fft.irfft(complex_rect)
-    return st.session_state.inverseFourier
+    time_domain_signal = np.fft.irfft(complex_rect)
+    return time_domain_signal
 
 
 def signal_to_wav(signal, sample_rate):
@@ -154,8 +151,8 @@ def signal_to_wav(signal, sample_rate):
     """
     signal = np.int16(signal)
     wavfile.write("edited.wav", sample_rate, signal)
-    st.session_state.audio_player = open("edited.wav", 'rb')
-    return st.session_state.audio_player
+    audio_player = open("edited.wav", 'rb')
+    return audio_player
 
 
 def open_mat(mat_file):
@@ -173,7 +170,6 @@ def open_mat(mat_file):
     signal_array = signal_array*10**-3  # in V
 
     # VIP: convert to volts to fourir inverse correctly
-    st.session_state['signalData'] = signal_array
     time = np.linspace(0.0, 10, len(signal_array))
     sample_rate = 360
     return time, signal_array, sample_rate

@@ -10,13 +10,25 @@ from scipy.io import wavfile
 from scipy import signal
 import scipy.io
 import altair as alt
+import os
+import streamlit.components.v1 as components
 
+parent_dir = os.path.dirname(os.path.abspath(__file__))
+build_dir = os.path.join(parent_dir, "build")
+_vertical_slider = components.declare_component(
+    "vertical_slider", path=build_dir)
+
+
+def vertical_slider(value, step, min=min, max=max, key=None):
+    slider_value = _vertical_slider(
+        value=value, step=step, min=min, max=max, key=key, default=value)
+    return slider_value
 
 
 def readAudioFile(file_name):
     sample_freq, audio_data = read("Audios\\" + file_name)
     t_audio = len(audio_data) / sample_freq
-    audio_palyer=open("Audios\\" + file_name, 'rb')
+    audio_palyer = open("Audios\\" + file_name, 'rb')
     time = np.linspace(0, t_audio, len(audio_data))
     return audio_data, time, t_audio, sample_freq, audio_palyer
 
@@ -26,38 +38,39 @@ def Sliders(sliderColumns, sliders_num):
     sliders = {}
     for idx in range(0, sliders_num):
         with sliderColumns[idx]:
-            if (idx == 0):
-                st.header('')  # GUI USAGE
-                st.header('')
-                st.header('Power (dB)')
-            else:
-                key = f'member{str(idx)}'
-                sliders[f'slider_group_{key}'] = svs.vertical_slider(
-                    key=key, default_value=0, step=1, min_value=-12, max_value=12)
-                if sliders[f'slider_group_{key}'] == None:
-                    sliders[f'slider_group_{key}'] = 0
-                adjusted_data.append((idx, sliders[f'slider_group_{key}']))
+            key = f'member{str(idx)}'
+            sliders[f'slider_group_{key}'] = vertical_slider(
+                0, 1, -20, 20, key)
+            adjusted_data.append((idx, sliders[f'slider_group_{key}']))
 
     return adjusted_data
 
 
-def plot(time, amplitude, invAmplitude, x_title, y_title, range):
+def plot(time, amplitude, invAmplitude, range):
 
     fig = make_subplots(rows=1, cols=2, shared_yaxes=True,
-                        horizontal_spacing=0.01)
+                        horizontal_spacing=0.01, subplot_titles=("Input", "Output"))
 
     fig.add_trace(go.Scatter(x=time, y=amplitude,
                              mode='lines'), row=1, col=1)
     fig.add_trace(go.Scatter(x=time, y=invAmplitude,
                              mode='lines'), row=1, col=2)
 
-    fig.update_xaxes(range=[0, range], title=x_title)
-    fig.update_layout(margin=dict(l=0, r=0, b=0, t=0), height=200,
-                      title_font=dict(
-                          family="Arial",
-                          size=17),
-                      showlegend=False,
-                      yaxis_title='Amplitude (mV)')
+    fig.update_xaxes(range=[0, range], title='time')
+    fig.update_layout(margin=dict(l=0, r=0, b=0, t=30),
+                      title={
+        'y': 0.9,
+        'x': 0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'},
+        height=200,
+        font=dict(
+            family='Segoe UI',
+            size=13,
+    ),
+        showlegend=False,
+        yaxis_title='Amplitude (mV)')
+    fig.update_annotations(font_size=20, font_family="Segoe UI")
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -77,14 +90,16 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
                                                 horizontal_spacing=0.01)
 
     fig.add_trace(go.Heatmap(x=nTime, y=nFreqs, z=10*np.log10(nPxx),
-                  colorscale='Jet', name='Spectrogram'), row=1, col=1)
+                             colorscale='Jet', name='Input Spectrogram', showscale=False), row=1, col=1)
     fig.add_trace(go.Heatmap(x=invTime, y=invFreqs, z=10*np.log10(invPXX),
-                  colorscale='Jet', name='Spectrogram'), row=1, col=2)
+                  colorscale='Jet', name='Output Spectrogram'), row=1, col=2)
 
-    fig.update_layout(height=300,
-                      title_font=dict(
-                          family="Arial",
-                          size=17), yaxis_title='Frequency (Hz)')
+    fig.update_layout(height=200, margin=dict(l=0, r=0, b=0, t=0),
+                      font=dict(
+        family='Segoe UI',
+        size=13,
+    ),
+        yaxis_title='Frequency (Hz)')
     fig.update_xaxes(range=[0, range], title='Time (s)')
     st.plotly_chart(fig, use_container_width=True)
 

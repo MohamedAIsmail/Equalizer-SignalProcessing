@@ -4,7 +4,6 @@
     "Extension": [["wav"], ["wav"], ["mat"], ["wav"]],
     "Labels": [
       [
-        "Frequency",
         "100",
         "200",
         "300",
@@ -16,9 +15,9 @@
         "1100",
         "1200"
       ],
-      ["Alphabet", "A", "B", "C", "D", "E", "F"],
-      ["ECG", "Normal", "VT", "SVTA", "Arrhthmeya"],
-      ["instruments", "bass", "xylophone", "trombone", "triangle"]
+      ["A", "B", "C", "D", "E", "F"],
+      ["Normal", "VT", "SVTA", "Arrhthmeya"],
+      ["Bass", "Xylophone", "Trombone", "Triangle"]
     ],
 
     "freq_ranges": [

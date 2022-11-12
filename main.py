@@ -14,9 +14,8 @@ if "graph_mode" not in st.session_state:
     st.session_state["graph_mode"]= "pause"
 # Columns for GUI
 left_col, right_col = st.columns((1, 4))
-margin_col2, play_col, margin_col2 = st.columns((8.5,1, 5))
+margin_col2, play_col,replay_col, margin_col2 = st.columns((8.5,1,1, 5))
 margin_col, audio_left_col, audio_right_col = st.columns((1.01, 2, 2))
-sliders_cols = st.columns(10)
 
 
 with left_col:
@@ -26,6 +25,7 @@ with left_col:
         'Upload your audio here!', accept_multiple_files=False, type=basic_data["Extension"][chosen_mode_index])
     spectro_mode = st.checkbox('Show Spectrogram')
     apply_btn = st.button('Apply Changes')
+sliders_cols = st.columns(len(basic_data["Labels"][chosen_mode_index]))
 
 # Saving the value of the sliders in a list [(1,0), (2,9)] ..
 slider_data = fn.Sliders(sliders_cols, len(basic_data["Labels"][chosen_mode_index]))
@@ -76,12 +76,17 @@ if (uploaded_audio):
                 st.session_state.graph_mode = "pause"
                 play_btn=btn_placeholder.button("▶")
                 st.experimental_rerun()
+    with replay_col:
+        replay_btn=st.button('↻')
+        if(replay_btn):
+            fn.refresh_graph()
         with right_col:
             fn.plot(time, signal_data,
                 st.session_state.edited_signal_time_domain)
             if (spectro_mode):
                 fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,
                                sample_freq, time_range)
+
 
     with audio_right_col:
         st.audio(st.session_state.edited_signal_player, format='audio/wav')
@@ -92,11 +97,7 @@ if (uploaded_audio):
 else:
     if "edited_signal_player" in st.session_state:
         del st.session_state["edited_signal_player"]
-        del st.session_state["chart"]
-        del st.session_state["counter"]
-        del st.session_state["sampled_time_list"]
-        del st.session_state["sampled_signal_list"]
-        del st.session_state["sampled_edited_signal_list"]
+        fn.refresh_graph()
     with right_col:
         chart =fn.empty_plot()
         st.altair_chart(chart,use_container_width=True)

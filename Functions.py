@@ -75,7 +75,7 @@ def plot(time, main_signal, edited_signal):
             y=alt.Y(alt.repeat("column"),type='quantitative', scale=alt.Scale(domain=[min(min_1,min_2),max(max_1,max_2)]))
             ).properties(
             width=650,
-            height=150
+            height=200
             ).repeat(
                 row=["Time(s)"],
                 column=['Input Amplitude','Output Amplitude']
@@ -99,7 +99,7 @@ def empty_plot():
     y=alt.Y(alt.repeat("column"),type='quantitative')
     ).properties(
     width=670,
-    height=150
+    height=200
     ).repeat(
         row=["Time(s)"],
         column=['Input Amplitude','Output Amplitude']
@@ -222,3 +222,16 @@ def open_mat(mat_file):
     time = np.linspace(0.0, 10, len(signal_array))
     sample_rate = 360
     return time, signal_array, sample_rate
+
+
+
+def refresh_graph():
+    if "counter" in st.session_state:
+        del st.session_state["counter"]
+        del st.session_state["sampled_time_list"]
+        del st.session_state["sampled_signal_list"]
+        del st.session_state["sampled_edited_signal_list"]        
+        del st.session_state["chart"]
+
+
+        

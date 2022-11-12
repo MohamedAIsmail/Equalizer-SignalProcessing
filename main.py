@@ -10,9 +10,11 @@ with open('style.css') as f:
 
 basic_data_file = open('data.json')
 basic_data = json.load(basic_data_file)[0]
-
+if "graph_mode" not in st.session_state:
+    st.session_state["graph_mode"]= "pause"
 # Columns for GUI
 left_col, right_col = st.columns((1, 4))
+margin_col2, play_col, margin_col2 = st.columns((8.5,1, 5))
 margin_col, audio_left_col, audio_right_col = st.columns((1.01, 2, 2))
 sliders_cols = st.columns(10)
 
@@ -26,8 +28,7 @@ with left_col:
     apply_btn = st.button('Apply Changes')
 
 # Saving the value of the sliders in a list [(1,0), (2,9)] ..
-slider_data = fn.Sliders(sliders_cols, len(
-    basic_data["Labels"][chosen_mode_index]))
+slider_data = fn.Sliders(sliders_cols, len(basic_data["Labels"][chosen_mode_index]))
 
 for idx, i in enumerate(basic_data["Labels"][chosen_mode_index]):
     with sliders_cols[idx]:
@@ -52,10 +53,6 @@ if (uploaded_audio):
         signal_data, sample_freq)
     max_signal_freq = max(fft_spectrum)
 
-    with left_col:
-        spectro_mode = st.checkbox('Show Spectrogram')
-        apply_btn = st.button('Apply Changes')
-
     if (apply_btn):
         edited_freq_magnitude = fn.edit_frequency(
             fft_spectrum, freq_magnitude, sample_freq, edit_list)
@@ -64,9 +61,26 @@ if (uploaded_audio):
         st.session_state.edited_signal_player = fn.signal_to_wav(
             st.session_state.edited_signal_time_domain, sample_freq)
 
-    with right_col:
-        fn.plot(time, signal_data,
-                st.session_state.edited_signal_time_domain, time_range)
+    with play_col:
+        btn_placeholder=st.empty()
+        if (st.session_state.graph_mode == "pause"):
+            play_btn=btn_placeholder.button("▶")
+        elif (st.session_state.graph_mode == "play"):
+            play_btn=btn_placeholder.button("▐▐")
+        if (play_btn):
+            if (st.session_state.graph_mode == "pause"):
+                st.session_state.graph_mode = "play"
+                play_btn=btn_placeholder.button("▐▐ ")
+                st.experimental_rerun()
+            elif (st.session_state.graph_mode == "play"):
+                st.session_state.graph_mode = "pause"
+                play_btn=btn_placeholder.button("▶")
+                st.experimental_rerun()
+        with right_col:
+            fn.plot(time, signal_data,
+                st.session_state.edited_signal_time_domain)
+
+      
         if (spectro_mode):
             fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,
                                sample_freq, time_range)
@@ -80,5 +94,12 @@ if (uploaded_audio):
 else:
     if "edited_signal_player" in st.session_state:
         del st.session_state["edited_signal_player"]
+        del st.session_state["chart"]
+        del st.session_state["counter"]
+        del st.session_state["sampled_time_list"]
+        del st.session_state["sampled_signal_list"]
+        del st.session_state["sampled_edited_signal_list"]
     with right_col:
-        fn.plot([], [], [], 7)
+        chart =fn.empty_plot()
+        st.altair_chart(chart,use_container_width=True)
+

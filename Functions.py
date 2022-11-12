@@ -3,7 +3,6 @@ from plotly.subplots import make_subplots
 import streamlit as st  # 🎈 data web app development
 import pandas as pd  # read csv, df manipulation
 import numpy as np
-import plotly as pt
 import streamlit_vertical_slider as svs
 from scipy.io.wavfile import read, write
 from scipy.io import wavfile
@@ -12,6 +11,7 @@ import scipy.io
 import altair as alt
 import os
 import streamlit.components.v1 as components
+import time as time_1
 
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 build_dir = os.path.join(parent_dir, "build")
@@ -46,32 +46,66 @@ def Sliders(sliderColumns, sliders_num):
     return adjusted_data
 
 
-def plot(time, amplitude, invAmplitude, range):
+def plot(time, main_signal, edited_signal):
+    sampled_time=time[::50]
+    sampled_signal=main_signal[::50]
+    sampled_edited_signal=edited_signal[::50]
+    max_1=max(sampled_edited_signal)
+    max_2=max(sampled_signal)
+    min_1=min(sampled_edited_signal)
+    min_2=min(sampled_signal)
+    graph_placeholder=st.empty()
+    if "chart" not in st.session_state:
+        st.session_state["chart"]=empty_plot()
+    if "counter" not in st.session_state:
+        st.session_state["counter"]=0
+        st.session_state["sampled_time_list"]=[]
+        st.session_state["sampled_signal_list"]=[]
+        st.session_state["sampled_edited_signal_list"]=[]
+    while(st.session_state.graph_mode=="play"):
+        for i in range(st.session_state.counter,len(sampled_time)-100, 100):
+            time_1.sleep(0.01)
+            signal_dataframe = pd.DataFrame ({
+            'Time(s)':st.session_state.sampled_time_list,
+            'Input Amplitude': st.session_state.sampled_signal_list,
+            "Output Amplitude":st.session_state.sampled_edited_signal_list
+        })
+            st.session_state.chart=alt.Chart(signal_dataframe).mark_line().encode(
+            x=alt.X(alt.repeat("row"), type='quantitative',scale=alt.Scale(domain=[0, max(sampled_time)])),
+            y=alt.Y(alt.repeat("column"),type='quantitative', scale=alt.Scale(domain=[min(min_1,min_2),max(max_1,max_2)]))
+            ).properties(
+            width=500,
+            height=150
+            ).repeat(
+                row=["Time(s)"],
+                column=['Input Amplitude','Output Amplitude']
+            ).interactive()
+            graph_placeholder.altair_chart(st.session_state.chart,use_container_width=True)
+            st.session_state.sampled_time_list.extend(sampled_time[i:i+100])
+            st.session_state.sampled_signal_list.extend(sampled_signal[i:i+100])
+            st.session_state.sampled_edited_signal_list.extend(sampled_edited_signal[i:i+100])
+            st.session_state.counter=i
+    graph_placeholder.altair_chart(st.session_state.chart,use_container_width=True)
 
-    fig = make_subplots(rows=1, cols=2, shared_yaxes=True,
-                        horizontal_spacing=0.01, subplot_titles=("Input", "Output"))
 
-    fig.add_trace(go.Scatter(x=time, y=amplitude,
-                             mode='lines'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=time, y=invAmplitude,
-                             mode='lines'), row=1, col=2)
+def empty_plot():
+    dummy_dataframe = pd.DataFrame ({
+        'Time(s)':[0,1,2,3,4,5],
+        'Input Amplitude': [0,0,0,0,0,0],
+        "Output Amplitude":[0,0,0,0,0,0]
+    })
+    chart=alt.Chart(dummy_dataframe).mark_line().encode(
+    x=alt.X(alt.repeat("row"), type='quantitative'),
+    y=alt.Y(alt.repeat("column"),type='quantitative')
+    ).properties(
+    width=500,
+    height=150
+    ).repeat(
+        row=["Time(s)"],
+        column=['Input Amplitude','Output Amplitude']
+    ).interactive()
+    return chart
 
-    fig.update_xaxes(range=[0, range], title='time')
-    fig.update_layout(margin=dict(l=0, r=0, b=0, t=30),
-                      title={
-        'y': 0.9,
-        'x': 0.5,
-        'xanchor': 'center',
-        'yanchor': 'top'},
-        height=200,
-        font=dict(
-            family='Segoe UI',
-            size=13,
-    ),
-        showlegend=False,
-        yaxis_title='Amplitude (mV)')
-    fig.update_annotations(font_size=20, font_family="Segoe UI")
-    st.plotly_chart(fig, use_container_width=True)
 
 
 def plotSpectrogram(amplitude, invAmplitude, fs, range):

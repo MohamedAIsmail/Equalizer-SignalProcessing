@@ -79,10 +79,8 @@ if (uploaded_audio):
         with right_col:
             fn.plot(time, signal_data,
                 st.session_state.edited_signal_time_domain)
-
-      
-        if (spectro_mode):
-            fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,
+            if (spectro_mode):
+                fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,
                                sample_freq, time_range)
 
     with audio_right_col:

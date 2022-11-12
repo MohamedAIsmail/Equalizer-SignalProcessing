@@ -74,7 +74,7 @@ def plot(time, main_signal, edited_signal):
             x=alt.X(alt.repeat("row"), type='quantitative',scale=alt.Scale(domain=[0, max(sampled_time)])),
             y=alt.Y(alt.repeat("column"),type='quantitative', scale=alt.Scale(domain=[min(min_1,min_2),max(max_1,max_2)]))
             ).properties(
-            width=500,
+            width=650,
             height=150
             ).repeat(
                 row=["Time(s)"],
@@ -98,7 +98,7 @@ def empty_plot():
     x=alt.X(alt.repeat("row"), type='quantitative'),
     y=alt.Y(alt.repeat("column"),type='quantitative')
     ).properties(
-    width=500,
+    width=670,
     height=150
     ).repeat(
         row=["Time(s)"],

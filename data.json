@@ -1,7 +1,7 @@
 [
   {
-    "Modes": ["Basic", "Vowels", "Medical Signals", "Musical instruments"],
-    "Extension": [["wav"], ["wav"], ["mat"], ["wav"]],
+    "Modes": ["Basic", "Vowels", "Animals", "Musical instruments"],
+    "Extension": [["wav"], ["wav"], ["wav"], ["wav"]],
     "Labels": [
       [
         "2000",
@@ -16,7 +16,7 @@
         "20000"
       ],
       ["A", "B", "C", "D", "E", "F"],
-      ["Normal", "VT", "SVTA", "Arrhthmeya"],
+      ["Owl", "Wolf", "Dog", "Horse","Duck", "Monkey","Bird"],
       ["Bass", "Xylophone", "Trombone", "Triangle"]
     ],
 
@@ -42,10 +42,13 @@
         [600, 700]
       ],
       [
-        [0, 100],
-        [100, 200],
-        [200, 300],
-        [400, 500]
+        [500, 1000],
+        [150, 1200],
+        [250, 1300],
+        [1300, 3800],
+        [1300,7500],
+        [1200,7500],
+        [1400,8000]
       ],
       [
         [0, 350],

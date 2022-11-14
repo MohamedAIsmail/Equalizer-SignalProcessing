@@ -40,14 +40,14 @@ for counter in range(0, len(basic_data["Labels"][chosen_mode_index])-1):
                      'frequency_2': basic_data["freq_ranges"][chosen_mode_index][counter][1], 'gain_db': slider_data[counter][1]})
 
 if (uploaded_audio):
-    if (chosen_mode_index == 2):
-        signal_data, time, sample_freq = fn.open_mat(uploaded_audio)
-    else:
-        signal_data, time, time_range, sample_freq, input_audio_player = fn.readAudioFile(
-            uploaded_audio.name)
-        if "edited_signal_player" not in st.session_state:
-            st.session_state["edited_signal_player"] = input_audio_player
-            st.session_state["edited_signal_time_domain"] = signal_data
+#     if (chosen_mode_index == 2):
+#         signal_data, time, sample_freq = fn.open_mat(uploaded_audio)
+#     else:
+    signal_data, time, time_range, sample_freq, input_audio_player = fn.readAudioFile(
+        uploaded_audio.name)
+    if "edited_signal_player" not in st.session_state:
+        st.session_state["edited_signal_player"] = input_audio_player
+        st.session_state["edited_signal_time_domain"] = signal_data
 
     freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
         signal_data, sample_freq)

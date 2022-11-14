@@ -47,65 +47,70 @@ def Sliders(sliderColumns, sliders_num):
 
 
 def plot(time, main_signal, edited_signal):
-    sampled_time=time[::50]
-    sampled_signal=main_signal[::50]
-    sampled_edited_signal=edited_signal[::50]
-    max_1=max(sampled_edited_signal)
-    max_2=max(sampled_signal)
-    min_1=min(sampled_edited_signal)
-    min_2=min(sampled_signal)
-    graph_placeholder=st.empty()
+    sampled_time = time[::50]
+    sampled_signal = main_signal[::50]
+    sampled_edited_signal = edited_signal[::50]
+    max_1 = max(sampled_edited_signal)
+    max_2 = max(sampled_signal)
+    min_1 = min(sampled_edited_signal)
+    min_2 = min(sampled_signal)
+    graph_placeholder = st.empty()
     if "chart" not in st.session_state:
-        st.session_state["chart"]=empty_plot()
+        st.session_state["chart"] = empty_plot()
     if "counter" not in st.session_state:
-        st.session_state["counter"]=0
-        st.session_state["sampled_time_list"]=[]
-        st.session_state["sampled_signal_list"]=[]
-        st.session_state["sampled_edited_signal_list"]=[]
-    while(st.session_state.graph_mode=="play"):
-        for i in range(st.session_state.counter,len(sampled_time)-100, 100):
+        st.session_state["counter"] = 0
+        st.session_state["sampled_time_list"] = []
+        st.session_state["sampled_signal_list"] = []
+        st.session_state["sampled_edited_signal_list"] = []
+    while(st.session_state.graph_mode == "play"):
+        for i in range(st.session_state.counter, len(sampled_time)-100, 100):
             time_1.sleep(0.01)
-            signal_dataframe = pd.DataFrame ({
-            'Time(s)':st.session_state.sampled_time_list,
-            'Input Amplitude': st.session_state.sampled_signal_list,
-            "Output Amplitude":st.session_state.sampled_edited_signal_list
-        })
-            st.session_state.chart=alt.Chart(signal_dataframe).mark_line().encode(
-            x=alt.X(alt.repeat("row"), type='quantitative',scale=alt.Scale(domain=[0, max(sampled_time)])),
-            y=alt.Y(alt.repeat("column"),type='quantitative', scale=alt.Scale(domain=[min(min_1,min_2),max(max_1,max_2)]))
+            signal_dataframe = pd.DataFrame({
+                'Time(s)': st.session_state.sampled_time_list,
+                'Input Amplitude': st.session_state.sampled_signal_list,
+                "Output Amplitude": st.session_state.sampled_edited_signal_list
+            })
+            st.session_state.chart = alt.Chart(signal_dataframe).mark_line().encode(
+                x=alt.X(alt.repeat("row"), type='quantitative',
+                        scale=alt.Scale(domain=[0, max(sampled_time)])),
+                y=alt.Y(alt.repeat("column"), type='quantitative', scale=alt.Scale(
+                    domain=[min(min_1, min_2), max(max_1, max_2)]))
             ).properties(
-            width=650,
-            height=200
+                width=500,
+                height=180
             ).repeat(
                 row=["Time(s)"],
-                column=['Input Amplitude','Output Amplitude']
+                column=['Input Amplitude', 'Output Amplitude']
             ).interactive()
-            graph_placeholder.altair_chart(st.session_state.chart,use_container_width=True)
+            graph_placeholder.altair_chart(
+                st.session_state.chart, use_container_width=True)
             st.session_state.sampled_time_list.extend(sampled_time[i:i+100])
-            st.session_state.sampled_signal_list.extend(sampled_signal[i:i+100])
-            st.session_state.sampled_edited_signal_list.extend(sampled_edited_signal[i:i+100])
-            st.session_state.counter=i
-    graph_placeholder.altair_chart(st.session_state.chart,use_container_width=True)
+            st.session_state.sampled_signal_list.extend(
+                sampled_signal[i:i+100])
+            st.session_state.sampled_edited_signal_list.extend(
+                sampled_edited_signal[i:i+100])
+            st.session_state.counter = i
+    graph_placeholder.altair_chart(
+        st.session_state.chart, use_container_width=True)
 
 
 def empty_plot():
-    dummy_dataframe = pd.DataFrame ({
-        'Time(s)':[0,1,2,3,4,5],
-        'Input Amplitude': [0,0,0,0,0,0],
-        "Output Amplitude":[0,0,0,0,0,0]
+    dummy_dataframe = pd.DataFrame({
+        'Time(s)': [0, 1, 2, 3, 4, 5],
+        'Input Amplitude': [0, 0, 0, 0, 0, 0],
+        "Output Amplitude": [0, 0, 0, 0, 0, 0]
     })
-    chart=alt.Chart(dummy_dataframe).mark_line().encode(
-    x=alt.X(alt.repeat("row"), type='quantitative'),
-    y=alt.Y(alt.repeat("column"),type='quantitative')
+    chart = alt.Chart(dummy_dataframe).mark_line().encode(
+        x=alt.X(alt.repeat("row"), type='quantitative'),
+        y=alt.Y(alt.repeat("column"), type='quantitative')
     ).properties(
-    width=670,
-    height=200
+        width=500,
+        height=180
     ).repeat(
         row=["Time(s)"],
-        column=['Input Amplitude','Output Amplitude']
+        column=['Input Amplitude', 'Output Amplitude']
     ).interactive()
     return chart
-
 
 
 def plotSpectrogram(amplitude, invAmplitude, fs, range):
@@ -224,14 +229,10 @@ def open_mat(mat_file):
     return time, signal_array, sample_rate
 
 
-
 def refresh_graph():
     if "counter" in st.session_state:
         del st.session_state["counter"]
         del st.session_state["sampled_time_list"]
         del st.session_state["sampled_signal_list"]
-        del st.session_state["sampled_edited_signal_list"]        
+        del st.session_state["sampled_edited_signal_list"]
         del st.session_state["chart"]
-
-
-        

@@ -4,7 +4,6 @@
 
 .css-po3vlj.exg6vvm15 {
   max-height: 50px;
-  background-color: black;
   display: flex;
   justify-content: center;
   position: relative;
@@ -33,7 +32,6 @@
 }
 
 .css-18e3th9 {
-  position: absolute !important;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-top: 0.2rem;
@@ -52,25 +50,27 @@
 }
 /* Select mode Column */
 .css-j5r0tf.e1tzin5v2 {
-  background-color: black;
+  border: solid;
+  border-color: black;
   padding: 20px;
   border-radius: 20px;
 }
 /* Select Mode text */
 .css-81oif8.effi0qh3 {
-  color: white;
+  color: black;
 }
 .uploadedFileName.css-1uixxvy.exg6vvm6 {
-  color: white;
+  color: black;
 }
 /* Checkbox Color */
 .css-1djdyxw.ek41t0m0 {
-  color: white;
+  color: black;
 }
 
 /* Plotting Columns */
 .css-1sdqqxz.e1tzin5v2 {
-  background-color: black;
+  border-color: black;
+  border: solid;
   padding: 20px;
   border-radius: 20px;
 }
@@ -84,17 +84,24 @@
 /* Slider Column */
 .css-znbf09.e1tzin5v2 {
   min-height: 180px;
-  background-color: black;
+  background-color: w;
   padding: 10px;
 }
 
 /* Text under Sliders */
-.css-183lzff.eyqtai90 {
+.css-1b2d4l5.e1tzin5v2 .css-183lzff.eyqtai90 {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 1vw;
   font-weight: bold;
   transform: translateY(-60px);
   margin-left: 39%;
+}
+.css-ocqkz7.e1tzin5v4 .css-183lzff.eyqtai90{
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1vw;
+    font-weight: bold;
+    transform: translateY(-60px);
+    margin-left: 43%;
 }
 
 .css-qri22k {
@@ -103,4 +110,10 @@
 
 .css-6kekos {
   font-weight: 1000;
+}
+
+/* Altair Responsive */
+canvas.marks {
+  max-width: 100% !important;
+  height: auto !important;
 }

@@ -15,7 +15,6 @@ if "graph_mode" not in st.session_state:
 
 # Columns for GUI
 margin_col2, play_col, replay_col, margin_col2 = st.columns((8.5, 1, 1, 5))
-
 left_col, right_col = st.columns((1, 4))
 margin_col, audio_left_col, audio_right_col = st.columns((1.01, 2, 2))
 
@@ -26,7 +25,6 @@ with left_col:
     uploaded_audio = st.file_uploader(
         'Upload your audio here!', accept_multiple_files=False, type=basic_data["Extension"][chosen_mode_index])
     spectro_mode = st.checkbox('Show Spectrogram')
-    apply_btn = st.button('Apply Changes')
 sliders_cols = st.columns(len(basic_data["Labels"][chosen_mode_index]))
 
 # Saving the value of the sliders in a list [(1,0), (2,9)] ..
@@ -53,13 +51,12 @@ if (uploaded_audio):
         signal_data, sample_freq)
     max_signal_freq = max(fft_spectrum)
 
-    if (apply_btn):
-        edited_freq_magnitude = fn.edit_frequency(
-            fft_spectrum, freq_magnitude, sample_freq, edit_list)
-        st.session_state.edited_signal_time_domain = fn.inverse_fourier(
-            edited_freq_magnitude, freq_phase)
-        st.session_state.edited_signal_player = fn.signal_to_wav(
-            st.session_state.edited_signal_time_domain, sample_freq)
+    edited_freq_magnitude = fn.edit_frequency(
+        fft_spectrum, freq_magnitude, sample_freq, edit_list)
+    st.session_state.edited_signal_time_domain = fn.inverse_fourier(
+        edited_freq_magnitude, freq_phase)
+    st.session_state.edited_signal_player = fn.signal_to_wav(
+        st.session_state.edited_signal_time_domain, sample_freq)
 
     with play_col:
         btn_placeholder = st.empty()

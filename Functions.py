@@ -62,8 +62,8 @@ def plot(time, main_signal, edited_signal):
         st.session_state["sampled_time_list"] = []
         st.session_state["sampled_signal_list"] = []
         st.session_state["sampled_edited_signal_list"] = []
-    while(st.session_state.graph_mode == "play"):
-        for i in range(st.session_state.counter, len(sampled_time)-100, 100):
+    while(st.session_state.graph_mode == "play" and  st.session_state.counter+len(sampled_time)%100 != len(sampled_time)):
+        for i in range(st.session_state.counter, len(sampled_time), 100):
             time_1.sleep(0.01)
             signal_dataframe = pd.DataFrame({
                 'Time(s)': st.session_state.sampled_time_list,
@@ -92,6 +92,7 @@ def plot(time, main_signal, edited_signal):
             st.session_state.counter = i
     graph_placeholder.altair_chart(
         st.session_state.chart, use_container_width=True)
+
 
 
 def empty_plot():
@@ -176,8 +177,7 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
     """
     frequency_points = len(freq_spectrum)/(sample_freq/2)
     for edit in edit_list:
-        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = np.sqrt(
-            (10**(edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]**2)))
+        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = (10**(edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]))
     return freq_magnitude
 
 

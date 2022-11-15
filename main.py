@@ -36,7 +36,7 @@ for idx, i in enumerate(basic_data["Labels"][chosen_mode_index]):
         st.text(basic_data["Labels"][chosen_mode_index][idx])
 
 edit_list = []
-for counter in range(0, len(basic_data["Labels"][chosen_mode_index])-1):
+for counter in range(0, len(basic_data["Labels"][chosen_mode_index])):
     edit_list.append({'frequency_1': basic_data["freq_ranges"][chosen_mode_index][counter][0],
                      'frequency_2': basic_data["freq_ranges"][chosen_mode_index][counter][1], 'gain_db': slider_data[counter][1]})
 

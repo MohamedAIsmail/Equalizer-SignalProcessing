@@ -20,11 +20,11 @@ margin_col, audio_left_col, audio_right_col = st.columns((1.01, 2, 2))
 
 
 with left_col:
-    chosen_mode_index = st.selectbox('Select mode', range(
+    chosen_mode_index = st.selectbox('Mode selected', range(
         len(basic_data["Modes"])), format_func=lambda x: basic_data["Modes"][x])
     uploaded_audio = st.file_uploader(
-        'Upload your audio here!', accept_multiple_files=False, type=basic_data["Extension"][chosen_mode_index])
-    spectro_mode = st.checkbox('Show Spectrogram')
+        'Upload audio!', accept_multiple_files=False, type=basic_data["Extension"][chosen_mode_index])
+
 sliders_cols = st.columns(len(basic_data["Labels"][chosen_mode_index]))
 
 # Saving the value of the sliders in a list [(1,0), (2,9)] ..
@@ -58,6 +58,15 @@ if (uploaded_audio):
     st.session_state.edited_signal_player = fn.signal_to_wav(
         st.session_state.edited_signal_time_domain, sample_freq)
 
+    # Play Audio Place
+    with left_col:
+        st.write("Before updates")
+        st.audio(st.session_state.edited_signal_player, format='audio/wav')
+    with left_col:
+        st.write("After Updates")
+        st.audio(input_audio_player, format='audio/wav')
+        spectro_mode = st.checkbox('Show Spectrogram')
+
     with play_col:
         btn_placeholder = st.empty()
         if (st.session_state.graph_mode == "pause"):
@@ -85,12 +94,8 @@ if (uploaded_audio):
             if (spectro_mode):
                 fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,
                                    sample_freq, time_range)
-
-    with audio_right_col:
-        st.audio(st.session_state.edited_signal_player, format='audio/wav')
-    with audio_left_col:
-        st.audio(input_audio_player, format='audio/wav')
-
+            else:
+                fn.plotEmptySpectrogram(time_range)
 
 else:
     if "edited_signal_player" in st.session_state:
@@ -99,9 +104,13 @@ else:
     with right_col:
         chart = fn.empty_plot()
         st.altair_chart(chart, use_container_width=True)
-    with audio_right_col:
+        fn.plotEmptySpectrogram(5)
+    with left_col:
+        st.write("Before updates")
         with open('Audios/Default.wav', 'rb') as fp:
             st.audio(fp, format='audio/wav')
-    with audio_left_col:
+    with left_col:
+        st.write("After Updates")
         with open('Audios/Default.wav', 'rb') as fp:
             st.audio(fp, format='audio/wav')
+        spectro_mode = st.checkbox('Show Spectrogram')

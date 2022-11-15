@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
 import streamlit as st  # 🎈 data web app development
 import pandas as pd  # read csv, df manipulation
 import numpy as np
@@ -62,7 +63,7 @@ def plot(time, main_signal, edited_signal):
         st.session_state["sampled_time_list"] = []
         st.session_state["sampled_signal_list"] = []
         st.session_state["sampled_edited_signal_list"] = []
-    while(st.session_state.graph_mode == "play" and  st.session_state.counter+len(sampled_time)%100 != len(sampled_time)):
+    while(st.session_state.graph_mode == "play" and st.session_state.counter+len(sampled_time) % 100 != len(sampled_time)):
         for i in range(st.session_state.counter, len(sampled_time), 100):
             time_1.sleep(0.01)
             signal_dataframe = pd.DataFrame({
@@ -92,7 +93,6 @@ def plot(time, main_signal, edited_signal):
             st.session_state.counter = i
     graph_placeholder.altair_chart(
         st.session_state.chart, use_container_width=True)
-
 
 
 def empty_plot():
@@ -125,23 +125,33 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
         invFreqs, invTime, invPXX = signal.spectrogram(
             invAmplitude, fs, window=w, nfft=N)
 
-    layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=30,))
-    fig = go.Figure(layout=layout).set_subplots(rows=1, cols=2, shared_yaxes=True,
-                                                horizontal_spacing=0.01)
+    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(30, 6.9))
+    fig.tight_layout(pad=10.0)
+    spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
+    spec[0].set_xlabel(xlabel='Time [sec]', size=15)
+    spec[0].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
 
-    fig.add_trace(go.Heatmap(x=nTime, y=nFreqs, z=10*np.log10(nPxx),
-                             colorscale='Jet', name='Input Spectrogram', showscale=False), row=1, col=1)
-    fig.add_trace(go.Heatmap(x=invTime, y=invFreqs, z=10*np.log10(invPXX),
-                  colorscale='Jet', name='Output Spectrogram'), row=1, col=2)
+    spec[1].pcolormesh(invTime, invFreqs, np.log(invPXX))
+    spec[1].set_xlabel(xlabel='Time [sec]', size=15)
+    spec[1].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
 
-    fig.update_layout(height=200, margin=dict(l=0, r=0, b=0, t=0),
-                      font=dict(
-        family='Segoe UI',
-        size=13,
-    ),
-        yaxis_title='Frequency (Hz)')
-    fig.update_xaxes(range=[0, range], title='Time (s)')
-    st.plotly_chart(fig, use_container_width=True)
+    st.pyplot(fig)
+
+
+def plotEmptySpectrogram(range):
+    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(30, 6.9))
+    fig.tight_layout(pad=10.0)
+    spec[0].plot([], [])
+    spec[0].set_xlabel(xlabel='Time [sec]', size=15)
+    spec[0].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
+    spec[0].set_xlim([0, range])
+
+    spec[1].plot([], [])
+    spec[1].set_xlabel(xlabel='Time [sec]', size=15)
+    spec[1].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
+    spec[1].set_xlim([0, range])
+
+    st.pyplot(fig)
 
 
 def frequencyDomain(signal_data, sampleFrequency):
@@ -177,7 +187,8 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
     """
     frequency_points = len(freq_spectrum)/(sample_freq/2)
     for edit in edit_list:
-        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = (10**(edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]))
+        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = (10**(
+            edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]))
     return freq_magnitude
 
 

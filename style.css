@@ -42,11 +42,17 @@
   padding-top: 0rem;
 }
 
+/* Checkbox */
+/* .row-widget.stCheckbox{
+  margin-left: 25%;
+} */
+
 /* selectbox text */
 .css-81oif8 {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: bold;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
 }
 /* Select mode Column */
 .css-j5r0tf.e1tzin5v2 {
@@ -55,6 +61,23 @@
   padding: 20px;
   border-radius: 20px;
 }
+
+/* Spectrogram plot */
+.css-dn2byr.e1tzin5v2{
+  border: solid;
+    border-color: black;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+/* Before & After Update text */
+.css-1offfwp.e16nr0p34 p{
+  font-size: 1.2rem;
+  font-weight: bold;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: black;
+}
+
 /* Select Mode text */
 .css-81oif8.effi0qh3 {
   color: black;
@@ -67,7 +90,7 @@
   color: black;
 }
 
-/* Plotting Columns */
+/* Plotting */
 .css-1sdqqxz.e1tzin5v2 {
   border-color: black;
   border: solid;
@@ -75,18 +98,6 @@
   border-radius: 20px;
 }
 
-/* Apply Button Change */
-.css-1x8cf1d {
-  width: 60%;
-  margin-left: 20%;
-}
-
-/* Slider Column */
-.css-znbf09.e1tzin5v2 {
-  min-height: 180px;
-  background-color: w;
-  padding: 10px;
-}
 
 /* Text under Sliders */
 .css-1b2d4l5.e1tzin5v2 .css-183lzff.eyqtai90 {

@@ -49,8 +49,6 @@ if (uploaded_audio):
 
     freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
         signal_data, sample_freq)
-    max_signal_freq = max(fft_spectrum)
-
     edited_freq_magnitude = fn.edit_frequency(
         fft_spectrum, freq_magnitude, sample_freq, edit_list)
     st.session_state.edited_signal_time_domain = fn.inverse_fourier(

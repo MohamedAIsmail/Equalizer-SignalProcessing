@@ -60,20 +60,17 @@ def plot(time, main_signal, edited_signal):
         st.session_state["chart"] = empty_plot()
     if "counter" not in st.session_state:
         st.session_state["counter"] = 0
-        st.session_state["sampled_time_list"] = []
-        st.session_state["sampled_signal_list"] = []
-        st.session_state["sampled_edited_signal_list"] = []
-    while(st.session_state.graph_mode == "play" and st.session_state.counter+len(sampled_time) % 100 != len(sampled_time)):
-        for i in range(st.session_state.counter, len(sampled_time), 100):
+
+    while(st.session_state.graph_mode == "play" and st.session_state.counter != len(sampled_time)-6):
+        for i in range(st.session_state.counter, len(sampled_time)-5, 1):
             time_1.sleep(0.01)
             signal_dataframe = pd.DataFrame({
-                'Time(s)': st.session_state.sampled_time_list,
-                'Input Amplitude': st.session_state.sampled_signal_list,
-                "Output Amplitude": st.session_state.sampled_edited_signal_list
+                'Time(s)': sampled_time[i:i+200],
+                'Input Amplitude': sampled_signal[i:i+200],
+                "Output Amplitude": sampled_edited_signal[i:i+200]
             })
             st.session_state.chart = alt.Chart(signal_dataframe).mark_line().encode(
-                x=alt.X(alt.repeat("row"), type='quantitative',
-                        scale=alt.Scale(domain=[0, max(sampled_time)])),
+                x=alt.X(alt.repeat("row"), type='quantitative'),
                 y=alt.Y(alt.repeat("column"), type='quantitative', scale=alt.Scale(
                     domain=[min(min_1, min_2), max(max_1, max_2)]))
             ).properties(
@@ -83,16 +80,10 @@ def plot(time, main_signal, edited_signal):
                 row=["Time(s)"],
                 column=['Input Amplitude', 'Output Amplitude']
             ).interactive()
-            graph_placeholder.altair_chart(
-                st.session_state.chart, use_container_width=True)
-            st.session_state.sampled_time_list.extend(sampled_time[i:i+100])
-            st.session_state.sampled_signal_list.extend(
-                sampled_signal[i:i+100])
-            st.session_state.sampled_edited_signal_list.extend(
-                sampled_edited_signal[i:i+100])
+            graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
             st.session_state.counter = i
-    graph_placeholder.altair_chart(
-        st.session_state.chart, use_container_width=True)
+    st.write(st.session_state.counter,len(sampled_time))
+    graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
 
 
 def empty_plot():
@@ -243,7 +234,4 @@ def open_mat(mat_file):
 def refresh_graph():
     if "counter" in st.session_state:
         del st.session_state["counter"]
-        del st.session_state["sampled_time_list"]
-        del st.session_state["sampled_signal_list"]
-        del st.session_state["sampled_edited_signal_list"]
         del st.session_state["chart"]

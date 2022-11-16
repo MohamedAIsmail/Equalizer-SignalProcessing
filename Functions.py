@@ -121,12 +121,13 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
     # Set general font size
     plt.rcParams['font.size'] = '16'
     fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
-    fig.tight_layout(pad=10.0)
+    fig.tight_layout(w_pad=5, pad=10)
 
     pcm1 = spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
     spec[0].set_xlabel(xlabel='Time [sec]', size=30)
     spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
     spec[0].tick_params(axis='both', labelsize=15)
+    fig.colorbar(pcm1, ax=spec[0])
 
     pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 10)))
     spec[1].set_xlabel(xlabel='Time [sec]', size=30)
@@ -138,8 +139,8 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
 
 def plotEmptySpectrogram(range):
     fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
+    fig.tight_layout(w_pad=5, pad=10)
 
-    fig.tight_layout(pad=10.0)
     spec[0].plot([], [])
     spec[0].set_xlabel(xlabel='Time (s)', size=30)
     spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)

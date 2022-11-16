@@ -13,6 +13,7 @@ import altair as alt
 import os
 import streamlit.components.v1 as components
 import time as time_1
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 build_dir = os.path.join(parent_dir, "build")
@@ -62,7 +63,7 @@ def plot(time, main_signal, edited_signal):
         st.session_state["counter"] = 0
 
     while(st.session_state.graph_mode == "play" and st.session_state.counter != len(sampled_time)-6):
-        for i in range(st.session_state.counter, len(sampled_time)-5, 1):
+        for i in range(st.session_state.counter, len(sampled_time)-5, 5):
             time_1.sleep(0.01)
             signal_dataframe = pd.DataFrame({
                 'Time(s)': sampled_time[i:i+200],
@@ -80,10 +81,11 @@ def plot(time, main_signal, edited_signal):
                 row=["Time(s)"],
                 column=['Input Amplitude', 'Output Amplitude']
             ).interactive()
-            graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
+            graph_placeholder.altair_chart(
+                st.session_state.chart, use_container_width=True)
             st.session_state.counter = i
-    st.write(st.session_state.counter,len(sampled_time))
-    graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
+    graph_placeholder.altair_chart(
+        st.session_state.chart, use_container_width=True)
 
 
 def empty_plot():
@@ -116,30 +118,37 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
         invFreqs, invTime, invPXX = signal.spectrogram(
             invAmplitude, fs, window=w, nfft=N)
 
-    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(30, 6.9))
+    # Set general font size
+    plt.rcParams['font.size'] = '16'
+    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
     fig.tight_layout(pad=10.0)
-    spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
-    spec[0].set_xlabel(xlabel='Time [sec]', size=15)
-    spec[0].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
 
-    spec[1].pcolormesh(invTime, invFreqs, np.log(invPXX))
-    spec[1].set_xlabel(xlabel='Time [sec]', size=15)
-    spec[1].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
+    pcm1 = spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
+    spec[0].set_xlabel(xlabel='Time [sec]', size=30)
+    spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
+    spec[0].tick_params(axis='both', labelsize=15)
+
+    pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 10)))
+    spec[1].set_xlabel(xlabel='Time [sec]', size=30)
+    spec[1].tick_params(axis='both', labelsize=15)
+    fig.colorbar(pcm2, ax=spec[1])
 
     st.pyplot(fig)
 
 
 def plotEmptySpectrogram(range):
-    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(30, 6.9))
+    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
+
     fig.tight_layout(pad=10.0)
     spec[0].plot([], [])
-    spec[0].set_xlabel(xlabel='Time [sec]', size=15)
-    spec[0].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
+    spec[0].set_xlabel(xlabel='Time (s)', size=30)
+    spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
+    spec[0].tick_params(axis='both', labelsize=15)
     spec[0].set_xlim([0, range])
 
     spec[1].plot([], [])
-    spec[1].set_xlabel(xlabel='Time [sec]', size=15)
-    spec[1].set_ylabel(ylabel='Frequency Amplitude [Hz]', size=15)
+    spec[1].set_xlabel(xlabel='Time (s)', size=30)
+    spec[1].tick_params(axis='both', labelsize=15)
     spec[1].set_xlim([0, range])
 
     st.pyplot(fig)
@@ -148,8 +157,8 @@ def plotEmptySpectrogram(range):
 def frequencyDomain(signal_data, sampleFrequency):
     """
     fourier transform to frequency domain
-    :param 
-        signal_data: list of time domain signal points 
+    :param
+        signal_data: list of time domain signal points
         sampleFrequency: int of sample rate for signal (Hz)
     :return: 3 lists (1- freq magnitude, 2-freq phase, frequency spectrum(x-axis))
     """
@@ -165,7 +174,7 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
     edit frequecny range with ceratin gain
     :equation used
         Gain(dB)= 10log(new_frequency_power/new_frequency_power)
-    :param 
+    :param
         freq_spectrum : list of frequencies values in a certain signal
         freq_magnitude :  list of frequencies magnitudes in a certain signal
         sample_freq: int of sample rate for signal (Hz)
@@ -174,7 +183,7 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
                         frequency_1: start range of frequencies to be changed
                         frequency_2: end range of frequencies to be changed
                         gain_db: gain value ti change in decieble scale
-    :return: list of edited frequency magnitudes 
+    :return: list of edited frequency magnitudes
     """
     frequency_points = len(freq_spectrum)/(sample_freq/2)
     for edit in edit_list:
@@ -187,10 +196,10 @@ def inverse_fourier(mag, phase):
     """
     return frequency in polar form to rect form then take inverse fourier for it
     ** inverse with no data loss **
-    :param 
-        mag : list of frequencies magnitudes 
+    :param
+        mag : list of frequencies magnitudes
         phase :  list of frequencies phases
-    :return: list of time domain signal after transformation 
+    :return: list of time domain signal after transformation
     """
     complex_rect = mag * np.cos(phase) + 1j*mag * np.sin(phase)
     time_domain_signal = np.fft.irfft(complex_rect)
@@ -200,9 +209,9 @@ def inverse_fourier(mag, phase):
 def signal_to_wav(signal, sample_rate):
     """
     convert signal array to a wav form saved in file.wav
-    :param 
+    :param
         signal : list of signal points in time domain
-        sample_rate :  signal sample rate 
+        sample_rate :  signal sample rate
     : no return:
     """
     signal = np.int16(signal)
@@ -214,11 +223,11 @@ def signal_to_wav(signal, sample_rate):
 def open_mat(mat_file):
     """
         Open .Mat file for medical signal files
-        :param 
-        wav_file : uploaded mat file 
+        :param
+        wav_file : uploaded mat file
         :return:
-            time-> list for x-axis(time) points 
-            signal_array-> list for y-axis(amplitude)(V) points 
+            time-> list for x-axis(time) points
+            signal_array-> list for y-axis(amplitude)(V) points
             sample_rate-> sample rate for the signal
     """
     file_data = scipy.io.loadmat(mat_file)

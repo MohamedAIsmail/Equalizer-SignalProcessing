@@ -23,7 +23,7 @@ with left_col:
     chosen_mode_index = st.selectbox('Mode selected', range(
         len(basic_data["Modes"])), format_func=lambda x: basic_data["Modes"][x])
     uploaded_audio = st.file_uploader(
-        'Upload audio!', accept_multiple_files=False, type=basic_data["Extension"][chosen_mode_index])
+        'Upload audio!', accept_multiple_files=False, type=["wav"])
 
 sliders_cols = st.columns(len(basic_data["Labels"][chosen_mode_index]))
 
@@ -55,14 +55,12 @@ if (uploaded_audio):
         edited_freq_magnitude, freq_phase)
     st.session_state.edited_signal_player = fn.signal_to_wav(
         st.session_state.edited_signal_time_domain, sample_freq)
-
     # Play Audio Place
     with left_col:
         st.write("Before updates")
-        st.audio(st.session_state.edited_signal_player, format='audio/wav')
-    with left_col:
-        st.write("After Updates")
         st.audio(input_audio_player, format='audio/wav')
+        st.write("After Updates")
+        st.audio(st.session_state.edited_signal_player, format='audio/wav')
         spectro_mode = st.checkbox('Show Spectrogram')
 
     with play_col:
@@ -72,14 +70,8 @@ if (uploaded_audio):
         elif (st.session_state.graph_mode == "play"):
             play_btn = btn_placeholder.button("▐▐")
         if (play_btn):
-            if (st.session_state.graph_mode == "pause"):
-                st.session_state.graph_mode = "play"
-                play_btn = btn_placeholder.button("▐▐ ")
-                st.experimental_rerun()
-            elif (st.session_state.graph_mode == "play"):
-                st.session_state.graph_mode = "pause"
-                play_btn = btn_placeholder.button("▶")
-                st.experimental_rerun()
+            st.session_state.graph_mode = "play" if st.session_state.graph_mode == "pause" else "pause"
+            st.experimental_rerun()
     with replay_col:
         replay_btn = st.button('↻')
         if(replay_btn):
@@ -87,11 +79,9 @@ if (uploaded_audio):
             st.session_state.graph_mode = "play"
             st.experimental_rerun()
         with right_col:
-            fn.plot(time, signal_data,
-                    st.session_state.edited_signal_time_domain)
+            fn.plot(time, signal_data,st.session_state.edited_signal_time_domain)
             if (spectro_mode):
-                fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,
-                                   sample_freq, time_range)
+                fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,sample_freq, time_range)
             else:
                 fn.plotEmptySpectrogram(time_range)
 
@@ -100,8 +90,8 @@ else:
         del st.session_state["edited_signal_player"]
         fn.refresh_graph()
     with right_col:
-        chart = fn.empty_plot()
-        st.altair_chart(chart, use_container_width=True)
+        fn.update_chart([0, 1, 2, 3, 4, 5],[0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0])
+        st.altair_chart(st.session_state.chart, use_container_width=True)
         fn.plotEmptySpectrogram(5)
     with left_col:
         st.write("Before updates")

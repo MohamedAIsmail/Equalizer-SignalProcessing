@@ -9,7 +9,7 @@
   position: relative;
 }
 
-.css-po3vlj.exg6vvm15 .css-1x8cf1d.edgvbvh10 {
+.css-po3vlj.exg6vvm15 .css-6kekos.edgvbvh9 {
   width: 80%;
   position: absolute;
   right: 10%;
@@ -52,7 +52,6 @@
   font-size: 1rem;
   font-weight: bold;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-
 }
 /* Select mode Column */
 .css-j5r0tf.e1tzin5v2 {
@@ -63,15 +62,15 @@
 }
 
 /* Spectrogram plot */
-.css-dn2byr.e1tzin5v2{
+.css-dn2byr.e1tzin5v2 {
   border: solid;
-    border-color: black;
-    padding: 20px;
-    border-radius: 20px;
+  border-color: black;
+  padding: 20px;
+  border-radius: 20px;
 }
 
 /* Before & After Update text */
-.css-1offfwp.e16nr0p34 p{
+.css-1offfwp.e16nr0p34 p {
   font-size: 1rem;
   font-weight: bold;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -98,7 +97,6 @@
   border-radius: 20px;
 }
 
-
 /* Text under Sliders */
 .css-1b2d4l5.e1tzin5v2 .css-183lzff.eyqtai90 {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -107,12 +105,12 @@
   transform: translateY(-60px);
   margin-left: 39%;
 }
-.css-ocqkz7.e1tzin5v4 .css-183lzff.eyqtai90{
+.css-ocqkz7.e1tzin5v4 .css-183lzff.eyqtai90 {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 1vw;
-    font-weight: bold;
-    transform: translateY(-60px);
-    margin-left: 43%;
+  font-size: 1vw;
+  font-weight: bold;
+  transform: translateY(-60px);
+  margin-left: 43%;
 }
 
 .css-qri22k {

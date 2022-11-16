@@ -8,7 +8,6 @@ import streamlit_vertical_slider as svs
 from scipy.io.wavfile import read, write
 from scipy.io import wavfile
 from scipy import signal
-import scipy.io
 import altair as alt
 import os
 import streamlit.components.v1 as components
@@ -58,22 +57,31 @@ def plot(time, main_signal, edited_signal):
     min_2 = min(sampled_signal)
     graph_placeholder = st.empty()
     if "chart" not in st.session_state:
-        st.session_state["chart"] = empty_plot()
+        update_chart(sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2))
     if "counter" not in st.session_state:
         st.session_state["counter"] = 0
 
-    while(st.session_state.graph_mode == "play" and st.session_state.counter != len(sampled_time)-6):
+    while(st.session_state.graph_mode == "play" and st.session_state.counter != len(sampled_time)-9):
         for i in range(st.session_state.counter, len(sampled_time)-5, 5):
             time_1.sleep(0.01)
-            signal_dataframe = pd.DataFrame({
-                'Time(s)': sampled_time[i:i+200],
-                'Input Amplitude': sampled_signal[i:i+200],
-                "Output Amplitude": sampled_edited_signal[i:i+200]
-            })
-            st.session_state.chart = alt.Chart(signal_dataframe).mark_line().encode(
+            update_chart(sampled_time[i:i+200],sampled_signal[i:i+200],sampled_edited_signal[i:i+200],min(min_1, min_2), max(max_1, max_2))
+            graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
+            st.session_state.counter = i
+    if ( st.session_state.counter == len(sampled_time)-9):
+        update_chart(sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2))
+    graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
+
+
+def update_chart(time, input_amp, output_amp, min_y=-20, max_y=20):
+    signal_dataframe = pd.DataFrame({
+        'Time(s)': time,
+        'Input Amplitude': input_amp,
+        "Output Amplitude": output_amp
+    })
+    st.session_state["chart"] = alt.Chart(signal_dataframe).mark_line().encode(
                 x=alt.X(alt.repeat("row"), type='quantitative'),
                 y=alt.Y(alt.repeat("column"), type='quantitative', scale=alt.Scale(
-                    domain=[min(min_1, min_2), max(max_1, max_2)]))
+                    domain=[min_y, max_y]))
             ).properties(
                 width=650,
                 height=180
@@ -81,30 +89,6 @@ def plot(time, main_signal, edited_signal):
                 row=["Time(s)"],
                 column=['Input Amplitude', 'Output Amplitude']
             ).interactive()
-            graph_placeholder.altair_chart(
-                st.session_state.chart, use_container_width=True)
-            st.session_state.counter = i
-    graph_placeholder.altair_chart(
-        st.session_state.chart, use_container_width=True)
-
-
-def empty_plot():
-    dummy_dataframe = pd.DataFrame({
-        'Time(s)': [0, 1, 2, 3, 4, 5],
-        'Input Amplitude': [0, 0, 0, 0, 0, 0],
-        "Output Amplitude": [0, 0, 0, 0, 0, 0]
-    })
-    chart = alt.Chart(dummy_dataframe).mark_line().encode(
-        x=alt.X(alt.repeat("row"), type='quantitative'),
-        y=alt.Y(alt.repeat("column"), type='quantitative')
-    ).properties(
-        width=650,
-        height=180
-    ).repeat(
-        row=["Time(s)"],
-        column=['Input Amplitude', 'Output Amplitude']
-    ).interactive()
-    return chart
 
 
 def plotSpectrogram(amplitude, invAmplitude, fs, range):
@@ -129,31 +113,12 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
     spec[0].tick_params(axis='both', labelsize=15)
     fig.colorbar(pcm1, ax=spec[0])
 
-    pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 10)))
+    pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 30)))
     spec[1].set_xlabel(xlabel='Time [sec]', size=30)
     spec[1].tick_params(axis='both', labelsize=15)
     fig.colorbar(pcm2, ax=spec[1])
 
     st.pyplot(fig)
-
-
-def plotEmptySpectrogram(range):
-    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
-    fig.tight_layout(w_pad=5, pad=10)
-
-    spec[0].plot([], [])
-    spec[0].set_xlabel(xlabel='Time (s)', size=30)
-    spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
-    spec[0].tick_params(axis='both', labelsize=15)
-    spec[0].set_xlim([0, range])
-
-    spec[1].plot([], [])
-    spec[1].set_xlabel(xlabel='Time (s)', size=30)
-    spec[1].tick_params(axis='both', labelsize=15)
-    spec[1].set_xlim([0, range])
-
-    st.pyplot(fig)
-
 
 def frequencyDomain(signal_data, sampleFrequency):
     """
@@ -221,27 +186,25 @@ def signal_to_wav(signal, sample_rate):
     return audio_player
 
 
-def open_mat(mat_file):
-    """
-        Open .Mat file for medical signal files
-        :param
-        wav_file : uploaded mat file
-        :return:
-            time-> list for x-axis(time) points
-            signal_array-> list for y-axis(amplitude)(V) points
-            sample_rate-> sample rate for the signal
-    """
-    file_data = scipy.io.loadmat(mat_file)
-    signal_array = file_data["val"][0]/(200)
-    signal_array = signal_array*10**-3  # in V
-
-    # VIP: convert to volts to fourir inverse correctly
-    time = np.linspace(0.0, 10, len(signal_array))
-    sample_rate = 360
-    return time, signal_array, sample_rate
-
 
 def refresh_graph():
     if "counter" in st.session_state:
         del st.session_state["counter"]
         del st.session_state["chart"]
+
+def plotEmptySpectrogram(range):
+    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
+    fig.tight_layout(w_pad=5, pad=10)
+
+    spec[0].plot([], [])
+    spec[0].set_xlabel(xlabel='Time (s)', size=30)
+    spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
+    spec[0].tick_params(axis='both', labelsize=15)
+    spec[0].set_xlim([0, range])
+
+    spec[1].plot([], [])
+    spec[1].set_xlabel(xlabel='Time (s)', size=30)
+    spec[1].tick_params(axis='both', labelsize=15)
+    spec[1].set_xlim([0, range])
+
+    st.pyplot(fig)

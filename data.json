@@ -1,7 +1,6 @@
 [
   {
     "Modes": ["Basic", "Vowels", "Animals", "Musical instruments"],
-    "Extension": [["wav"], ["wav"], ["wav"], ["wav"]],
     "Labels": [
       [
         "2000",
@@ -16,7 +15,7 @@
         "20000"
       ],
       ["A", "B", "C", "D", "E", "F"],
-      ["Owl", "Wolf", "Dog", "Horse", "Duck", "Monkey","bat"],
+      ["Owl", "Wolf", "Dog", "Horse", "Duck", "Monkey", "bat"],
       ["Bass", "Xylophone", "Trombone", "Triangle"]
     ],
 
@@ -48,7 +47,7 @@
         [1300, 3300],
         [1300, 7500],
         [1200, 7500],
-        [3300,6000]
+        [3300, 6000]
       ],
       [
         [0, 350],

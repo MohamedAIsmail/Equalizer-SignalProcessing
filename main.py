@@ -8,30 +8,35 @@ st.set_page_config(page_title="Equalizer",
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+#____________________Intial variables declaration_________________________________#
+
+# Read data from Json 
 basic_data_file = open('data.json')
 basic_data = json.load(basic_data_file)[0]
 
+# Session state declaration 
 if "graph_mode" not in st.session_state:
     st.session_state["graph_mode"] = "pause"
 if "full_graph_mode" not in st.session_state:
     st.session_state["full_graph_mode"] = False
 
+
+#___________________________________ UI _____________________________________#
 # Columns for GUI
 margin_col2, play_col, replay_col,full_graph_col ,margin_col2 = st.columns((8.5, 1, 1,1, 5))
 left_col, right_col = st.columns((1, 4))
 margin_col, audio_left_col, audio_right_col = st.columns((1.01, 2, 2))
 
+# Upload/ Audios players
 with left_col:
-    chosen_mode_index = st.selectbox('Mode selected', range(
-        len(basic_data["Modes"])), format_func=lambda x: basic_data["Modes"][x])
-    uploaded_audio = st.file_uploader(
-        'Upload audio!', accept_multiple_files=False, type=["wav"])
+    chosen_mode_index = st.selectbox('Mode selected', range(len(basic_data["Modes"])), format_func=lambda x: basic_data["Modes"][x])
+    uploaded_audio = st.file_uploader('Upload audio!', accept_multiple_files=False, type=["wav"])
 
+# Sliders Container 
 sliders_cols = st.columns(len(basic_data["Labels"][chosen_mode_index]))
 
 # Saving the value of the sliders in a list [(1,0), (2,9)] ..
-slider_data = fn.Sliders(sliders_cols, len(
-    basic_data["Labels"][chosen_mode_index]))
+slider_data = fn.Sliders(sliders_cols, len(basic_data["Labels"][chosen_mode_index]))
 
 for idx, i in enumerate(basic_data["Labels"][chosen_mode_index]):
     with sliders_cols[idx]:
@@ -43,21 +48,17 @@ for counter in range(0, len(basic_data["Labels"][chosen_mode_index])):
                      'frequency_2': basic_data["freq_ranges"][chosen_mode_index][counter][1], 'gain_db': slider_data[counter][1]})
 
 if (uploaded_audio):
-    signal_data, time, time_range, sample_freq, input_audio_player = fn.readAudioFile(
-        uploaded_audio.name)
+    signal_data, time, time_range, sample_freq, input_audio_player = fn.readAudioFile(uploaded_audio.name)
     if "edited_signal_player" not in st.session_state:
         st.session_state["edited_signal_player"] = input_audio_player
         st.session_state["edited_signal_time_domain"] = signal_data
         fn.view_full_chart(time,signal_data,signal_data)
 
-
+# Fourier Transformation and edits
     freq_values , fft_spectrum = fn.frequencyDomain(signal_data, sample_freq)
-    edited_freq_magnitude = fn.edit_frequency(
-        fft_spectrum, freq_values, sample_freq, edit_list)
-    st.session_state.edited_signal_time_domain = fn.inverse_fourier(
-        edited_freq_magnitude)
-    st.session_state.edited_signal_player = fn.signal_to_wav(
-        st.session_state.edited_signal_time_domain, sample_freq)
+    edited_freq_magnitude = fn.edit_frequency(fft_spectrum, freq_values, sample_freq, edit_list)
+    st.session_state.edited_signal_time_domain = fn.inverse_fourier(edited_freq_magnitude)
+    st.session_state.edited_signal_player = fn.signal_to_wav(st.session_state.edited_signal_time_domain, sample_freq)
 
     # Left Container elements
     with left_col:

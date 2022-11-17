@@ -16,8 +16,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 build_dir = os.path.join(parent_dir, "build")
-_vertical_slider = components.declare_component(
-    "vertical_slider", path=build_dir)
+_vertical_slider = components.declare_component("vertical_slider", path=build_dir)
 
 
 def vertical_slider(value, step, min=min, max=max, key=None):
@@ -27,6 +26,12 @@ def vertical_slider(value, step, min=min, max=max, key=None):
 
 
 def readAudioFile(file_name):
+    """
+    open wav file and extract signal from 
+    :param
+        file_name : name of file uploaded
+    : return: 2 lists [signal list amplitude- signal time list ] , audio time, sampling frequency, file player 
+    """
     sample_freq, audio_data = read("Audios\\" + file_name)
     t_audio = len(audio_data) / sample_freq
     audio_palyer = open("Audios\\" + file_name, 'rb')
@@ -57,6 +62,7 @@ def graph_sample(time, main_signal, edited_signal):
     min_2 = min(sampled_signal)
     return sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2)
 
+
 def plot(time, main_signal, edited_signal):
     if "loop_flag" not in st.session_state:
         st.session_state["loop_flag"] = True
@@ -68,13 +74,12 @@ def plot(time, main_signal, edited_signal):
         st.session_state["counter"] = 0
 
     while(st.session_state.graph_mode == "play" and st.session_state.loop_flag==True ):
-        for i in range(st.session_state.counter, len(sampled_time)-5, 5):
+        for i in range(st.session_state.counter, len(sampled_time), 5):
             time_1.sleep(0.01)
             update_chart(sampled_time[i:i+200],sampled_signal[i:i+200],sampled_edited_signal[i:i+200],min, max)
             graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
             st.session_state.counter = i
         st.session_state.loop_flag=False 
-        
     graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
 
 
@@ -114,22 +119,17 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
         w = signal.blackman(N)
         nFreqs, nTime, nPxx = signal.spectrogram(amplitude, fs, window=w, nfft=N)
 
-        if (invAmplitude == []):
-            invFreqs, invTime, invPXX = [], [], []
-        else:
-            invFreqs, invTime, invPXX = signal.spectrogram(
-                invAmplitude, fs, window=w, nfft=N)
+        invFreqs, invTime, invPXX = signal.spectrogram(
+            invAmplitude, fs, window=w, nfft=N)
         pcm1 = spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
         fig.colorbar(pcm1, ax=spec[0])
         pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 30)))
         fig.colorbar(pcm2, ax=spec[1])
     
     spec[0].set_xlabel(xlabel='Time [sec]', size=30)
-    spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
-    spec[0].tick_params(axis='both', labelsize=15)
+    spec[0].set_ylabel(ylabel='Frequency (Hz)', size=30)
     
     spec[1].set_xlabel(xlabel='Time [sec]', size=30)
-    spec[1].tick_params(axis='both', labelsize=15)
     
     st.pyplot(fig)
 
@@ -147,11 +147,11 @@ def frequencyDomain(signal_data, sampleFrequency):
     return freq, fft_spectrum
 
 
-def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
+def edit_frequency(freq_spectrum, freq_values, sample_freq, edit_list):
     """
     edit frequecny range with ceratin gain
     :equation used
-        Gain(dB)= 10log(new_frequency_power/new_frequency_power)
+        Gain(dB)= 10log(new_frequency/old_frequency)
     :param
         freq_spectrum : list of frequencies values in a certain signal
         freq_magnitude :  list of frequencies magnitudes in a certain signal
@@ -165,9 +165,9 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
     """
     frequency_points = len(freq_spectrum)/(sample_freq/2)
     for edit in edit_list:
-        freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = (10**(
-            edit['gain_db']/10)*(freq_magnitude[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]))
-    return freq_magnitude
+        freq_values[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))] = (10**(
+            edit['gain_db']/10)*(freq_values[int(frequency_points*edit["frequency_1"]):int((frequency_points*edit["frequency_2"]))]))
+    return freq_values
 
 
 def inverse_fourier(frequency_value):

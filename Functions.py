@@ -101,33 +101,38 @@ def view_full_chart(time,input_signal,outpit_signal):
     update_chart(sampled_time,sampled_signal,sampled_edited_signal,min, max)
 
 def plotSpectrogram(amplitude, invAmplitude, fs, range):
-    N = 512
-    w = signal.blackman(N)
-    nFreqs, nTime, nPxx = signal.spectrogram(amplitude, fs, window=w, nfft=N)
-
-    if (invAmplitude == []):
-        invFreqs, invTime, invPXX = [], [], []
-    else:
-        invFreqs, invTime, invPXX = signal.spectrogram(
-            invAmplitude, fs, window=w, nfft=N)
-
     # Set general font size
     plt.rcParams['font.size'] = '16'
     fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
     fig.tight_layout(w_pad=5, pad=10)
 
-    pcm1 = spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
+    if(not st.session_state.spectro_mode):
+        spec[0].plot([], [])
+        spec[1].plot([], [])
+    else :
+        N = 512
+        w = signal.blackman(N)
+        nFreqs, nTime, nPxx = signal.spectrogram(amplitude, fs, window=w, nfft=N)
+
+        if (invAmplitude == []):
+            invFreqs, invTime, invPXX = [], [], []
+        else:
+            invFreqs, invTime, invPXX = signal.spectrogram(
+                invAmplitude, fs, window=w, nfft=N)
+        pcm1 = spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
+        fig.colorbar(pcm1, ax=spec[0])
+        pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 30)))
+        fig.colorbar(pcm2, ax=spec[1])
+    
     spec[0].set_xlabel(xlabel='Time [sec]', size=30)
     spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
     spec[0].tick_params(axis='both', labelsize=15)
-    fig.colorbar(pcm1, ax=spec[0])
-
-    pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 30)))
+    
     spec[1].set_xlabel(xlabel='Time [sec]', size=30)
     spec[1].tick_params(axis='both', labelsize=15)
-    fig.colorbar(pcm2, ax=spec[1])
-
+    
     st.pyplot(fig)
+
 
 def frequencyDomain(signal_data, sampleFrequency):
     """
@@ -135,13 +140,11 @@ def frequencyDomain(signal_data, sampleFrequency):
     :param
         signal_data: list of time domain signal points
         sampleFrequency: int of sample rate for signal (Hz)
-    :return: 3 lists (1- freq magnitude, 2-freq phase, frequency spectrum(x-axis))
+    :return: 2 lists (1- frequency value , 2- frequency spectrum(x-axis))
     """
     freq = np.fft.rfft(signal_data)
-    freq_magnitude = np.abs(freq)
-    freq_phase = np.angle(freq, deg=False)
     fft_spectrum = np.fft.rfftfreq(signal_data.size, 1/sampleFrequency)
-    return freq_magnitude, freq_phase, fft_spectrum
+    return freq, fft_spectrum
 
 
 def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
@@ -167,17 +170,15 @@ def edit_frequency(freq_spectrum, freq_magnitude, sample_freq, edit_list):
     return freq_magnitude
 
 
-def inverse_fourier(mag, phase):
+def inverse_fourier(frequency_value):
     """
-    return frequency in polar form to rect form then take inverse fourier for it
+    return signal in time domain (Inverse Fourier)
     ** inverse with no data loss **
     :param
-        mag : list of frequencies magnitudes
-        phase :  list of frequencies phases
+        frequency_value : list of frequencies values 
     :return: list of time domain signal after transformation
     """
-    complex_rect = mag * np.cos(phase) + 1j*mag * np.sin(phase)
-    time_domain_signal = np.fft.irfft(complex_rect)
+    time_domain_signal = np.fft.irfft(frequency_value)
     return time_domain_signal
 
 
@@ -201,19 +202,4 @@ def refresh_graph():
         del st.session_state["counter"]
         del st.session_state["chart"]
         del st.session_state["loop_flag"]
-def plotEmptySpectrogram(range):
-    fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
-    fig.tight_layout(w_pad=5, pad=10)
 
-    spec[0].plot([], [])
-    spec[0].set_xlabel(xlabel='Time (s)', size=30)
-    spec[0].set_ylabel(ylabel='Frequency Amplitude (Hz)', size=30)
-    spec[0].tick_params(axis='both', labelsize=15)
-    spec[0].set_xlim([0, range])
-
-    spec[1].plot([], [])
-    spec[1].set_xlabel(xlabel='Time (s)', size=30)
-    spec[1].tick_params(axis='both', labelsize=15)
-    spec[1].set_xlim([0, range])
-
-    st.pyplot(fig)

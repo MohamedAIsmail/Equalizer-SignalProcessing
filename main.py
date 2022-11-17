@@ -51,12 +51,11 @@ if (uploaded_audio):
         fn.view_full_chart(time,signal_data,signal_data)
 
 
-    freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
-        signal_data, sample_freq)
+    freq_values , fft_spectrum = fn.frequencyDomain(signal_data, sample_freq)
     edited_freq_magnitude = fn.edit_frequency(
-        fft_spectrum, freq_magnitude, sample_freq, edit_list)
+        fft_spectrum, freq_values, sample_freq, edit_list)
     st.session_state.edited_signal_time_domain = fn.inverse_fourier(
-        edited_freq_magnitude, freq_phase)
+        edited_freq_magnitude)
     st.session_state.edited_signal_player = fn.signal_to_wav(
         st.session_state.edited_signal_time_domain, sample_freq)
 
@@ -66,7 +65,7 @@ if (uploaded_audio):
         st.audio(input_audio_player, format='audio/wav')
         st.write("After Updates")
         st.audio(st.session_state.edited_signal_player, format='audio/wav')
-        spectro_mode = st.checkbox('Show Spectrogram')
+        st.session_state['spectro_mode'] = st.checkbox('Show Spectrogram')
 
     with play_col:
         btn_placeholder = st.empty()
@@ -97,19 +96,18 @@ if (uploaded_audio):
             st.experimental_rerun()
         with right_col:
             fn.plot(time, signal_data,st.session_state.edited_signal_time_domain)
-            if (spectro_mode):
-                fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,sample_freq, time_range)
-            else:
-                fn.plotEmptySpectrogram(time_range)
+            fn.plotSpectrogram(signal_data, st.session_state.edited_signal_time_domain,sample_freq, time_range)
+
 
 else:
     if "edited_signal_player" in st.session_state:
         del st.session_state["edited_signal_player"]
         fn.refresh_graph()
+    st.session_state['spectro_mode'] = False
     with right_col:
         fn.update_chart([0, 1, 2, 3, 4, 5],[0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0])
         st.altair_chart(st.session_state.chart, use_container_width=True)
-        fn.plotEmptySpectrogram(5)
+        fn.plotSpectrogram([], [], [], 5)
     with left_col:
         st.write("Before updates")
         with open('Audios/Default.wav', 'rb') as fp:

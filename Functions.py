@@ -47,7 +47,7 @@ def Sliders(sliderColumns, sliders_num):
     return adjusted_data
 
 
-def plot(time, main_signal, edited_signal):
+def graph_sample(time, main_signal, edited_signal):
     sampled_time = time[::50]
     sampled_signal = main_signal[::50]
     sampled_edited_signal = edited_signal[::50]
@@ -55,20 +55,26 @@ def plot(time, main_signal, edited_signal):
     max_2 = max(sampled_signal)
     min_1 = min(sampled_edited_signal)
     min_2 = min(sampled_signal)
+    return sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2)
+
+def plot(time, main_signal, edited_signal):
+    if "loop_flag" not in st.session_state:
+        st.session_state["loop_flag"] = True
+    sampled_time,sampled_signal,sampled_edited_signal,min, max= graph_sample(time, main_signal, edited_signal)
     graph_placeholder = st.empty()
     if "chart" not in st.session_state:
-        update_chart(sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2))
+        update_chart(sampled_time,sampled_signal,sampled_edited_signal,min, max)
     if "counter" not in st.session_state:
         st.session_state["counter"] = 0
 
-    while(st.session_state.graph_mode == "play" and st.session_state.counter != len(sampled_time)-9):
+    while(st.session_state.graph_mode == "play" and st.session_state.loop_flag==True ):
         for i in range(st.session_state.counter, len(sampled_time)-5, 5):
             time_1.sleep(0.01)
-            update_chart(sampled_time[i:i+200],sampled_signal[i:i+200],sampled_edited_signal[i:i+200],min(min_1, min_2), max(max_1, max_2))
+            update_chart(sampled_time[i:i+200],sampled_signal[i:i+200],sampled_edited_signal[i:i+200],min, max)
             graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
             st.session_state.counter = i
-    if ( st.session_state.counter == len(sampled_time)-9):
-        update_chart(sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2))
+        st.session_state.loop_flag=False 
+        
     graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
 
 
@@ -90,6 +96,9 @@ def update_chart(time, input_amp, output_amp, min_y=-20, max_y=20):
                 column=['Input Amplitude', 'Output Amplitude']
             ).interactive()
 
+def view_full_chart(time,input_signal,outpit_signal):
+    sampled_time,sampled_signal,sampled_edited_signal,min, max=graph_sample(time,input_signal,outpit_signal)
+    update_chart(sampled_time,sampled_signal,sampled_edited_signal,min, max)
 
 def plotSpectrogram(amplitude, invAmplitude, fs, range):
     N = 512
@@ -191,7 +200,7 @@ def refresh_graph():
     if "counter" in st.session_state:
         del st.session_state["counter"]
         del st.session_state["chart"]
-
+        del st.session_state["loop_flag"]
 def plotEmptySpectrogram(range):
     fig, spec = plt.subplots(1, 2, sharey=True, figsize=(40, 10))
     fig.tight_layout(w_pad=5, pad=10)

@@ -10,14 +10,16 @@ with open('style.css') as f:
 
 basic_data_file = open('data.json')
 basic_data = json.load(basic_data_file)[0]
+
 if "graph_mode" not in st.session_state:
     st.session_state["graph_mode"] = "pause"
+if "full_graph_mode" not in st.session_state:
+    st.session_state["full_graph_mode"] = False
 
 # Columns for GUI
-margin_col2, play_col, replay_col, margin_col2 = st.columns((8.5, 1, 1, 5))
+margin_col2, play_col, replay_col,full_graph_col ,margin_col2 = st.columns((8.5, 1, 1,1, 5))
 left_col, right_col = st.columns((1, 4))
 margin_col, audio_left_col, audio_right_col = st.columns((1.01, 2, 2))
-
 
 with left_col:
     chosen_mode_index = st.selectbox('Mode selected', range(
@@ -46,6 +48,8 @@ if (uploaded_audio):
     if "edited_signal_player" not in st.session_state:
         st.session_state["edited_signal_player"] = input_audio_player
         st.session_state["edited_signal_time_domain"] = signal_data
+        fn.view_full_chart(time,signal_data,signal_data)
+
 
     freq_magnitude, freq_phase, fft_spectrum = fn.frequencyDomain(
         signal_data, sample_freq)
@@ -55,7 +59,8 @@ if (uploaded_audio):
         edited_freq_magnitude, freq_phase)
     st.session_state.edited_signal_player = fn.signal_to_wav(
         st.session_state.edited_signal_time_domain, sample_freq)
-    # Play Audio Place
+
+    # Left Container elements
     with left_col:
         st.write("Before updates")
         st.audio(input_audio_player, format='audio/wav')
@@ -71,12 +76,24 @@ if (uploaded_audio):
             play_btn = btn_placeholder.button("▐▐")
         if (play_btn):
             st.session_state.graph_mode = "play" if st.session_state.graph_mode == "pause" else "pause"
+            st.session_state.full_graph_mode=False
             st.experimental_rerun()
+
+    view_ful_chart_btn= full_graph_col.button("📈")
+    if(view_ful_chart_btn):
+        st.session_state.full_graph_mode = True
+        st.session_state.graph_mode = "pause"
+        st.experimental_rerun()
+
+    if(st.session_state.full_graph_mode == True):
+        fn.view_full_chart(time,signal_data,st.session_state.edited_signal_time_domain)
+
     with replay_col:
         replay_btn = st.button('↻')
         if(replay_btn):
             fn.refresh_graph()
             st.session_state.graph_mode = "play"
+            st.session_state.full_graph_mode=False
             st.experimental_rerun()
         with right_col:
             fn.plot(time, signal_data,st.session_state.edited_signal_time_domain)

@@ -5,47 +5,61 @@
 ## Table of contents
 
 - [Introduction](#introduction)
-- [Main Idea](#Main Idea)
-- [Features](#Features)
-  -[Live dynamic Plotting](#Live dynamic Plotting)
-- [Preview](#Preview)
+- [Brief Explanation](#brief-explanation)
+- [Features](#features)
+- [Preview](#preview)
+- [How to Run The Project](#run-the-project)
 - [Team](#team)
 
 ### Introduction
 
 Website used for Equalizing audios (reducing and increasing specific audios according to the chosen mode of operation) through Signal Processing.
 
-### Main Idea
+### Brief Explanation
 
-We process the signal by scaling a range of frequencies based on **Decibel scale** after applying **Fast Fourier Transfrom** on the audio uploaded, After the changes we invert the changed frequencies back to Time Domain then convert it back into audio format.
+- We process the signal by scaling a range of frequencies based on **Decibel scale** after applying **Fast Fourier Transfrom** on the audio uploaded, After the changes we invert the changed frequencies back to Time Domain then convert it back into audio format.
+
+- Our application works in different modes such as:
+
+Uniform Range Mode: The sampling frequency of the input audio (44.1k Hz) we divide it by 2 to get the maximum frequency then divide it uniformly into 8 equal ranges of frequencies, each is controlled by one slider in the UI.
+
+Vowels Mode: Each slider can control the magnitude of specific vowel.
+
+Musical Instruments Mode: Each slider can control the power of a specific musical instrument.
+
+Animals Mode: Each slider can control the magnitude of a specific animal sound.
 
 ### Features
-- Optimized software & fast processing speed
-- Clean audio reconstruction
-- #### Live dynamic plotting
 
-- Live updates on spectrogram
-- 4 Working modes (Basic - Vowels - Animals - Muscial Instruments)
-
-### Preview
+> Optimized software & fast processing speed
+> Clean audio reconstruction
+> Live dynamic plotting
+> Live updates on spectrogram
 
 
+### Run the Project 
 
- 
-
-### Run The project
-
-You need to install
-- Python
-- Streamlit --> pip install streamlit
-- Matplotlib --> pip install matplotlib
-- Pandas --> pip install pandas
-- Numpy --> pip install numpy
-- Scipy --> pip install scipy
-- Altair --> pip install altair
-- streamlit.components.v1 --> pip install streamlit.components.v1
-
-Then use command *streamlit run main.py* in the terminal
+1. Install Python3 on your computer
+``` 
+Download it from www.python.org/downloads/
+```
+2. Install the following modules
+   - numpy
+   - streamlit
+   - matplotlib
+   - pandas
+   - numpy
+   - scipy
+   - altair
+   - streamlit.components.v1
+ - Open Project Terminal & Run the following command
+```
+pip install moudle-name
+```
+3. Start Server by Running 
+```
+streamlit run main.py
+```
 
 ## Team
 
@@ -53,10 +67,13 @@ Then use command *streamlit run main.py* in the terminal
 
 Digital Signal Processing (SBE3110) class project created by:
 
-- Mohamed Ahmed Ismail
-- Romaisaa Sherif
-- Mariam Wael
-- Mariam Megahed
+| Team Members' Names                                  | Section | B.N. |
+|------------------------------------------------------|:-------:|:----:|
+| [Mohamed Ahmed Ismail](https://github.com/1brahimmohamed) |    2    |  16   |
+| [Romaisaa Sherif](https://github.com/Romaisaa)    |    1    |  36  |
+| [Mariam Wael](https://github.com/MariamWaell)   |    2    |  36   |
+| [Mariam Megahed](https://github.com/MaryamMegahed)    |    2    |  32  |
+
 
 ### Submitted to:
 

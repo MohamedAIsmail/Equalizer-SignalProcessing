@@ -2,6 +2,7 @@
   visibility: collapse;
 }
 
+/* Upload Audio Button */
 .css-po3vlj.exg6vvm15 {
   max-height: 50px;
   display: flex;
@@ -9,19 +10,15 @@
   position: relative;
 }
 
-.css-po3vlj.exg6vvm15 .css-6kekos.edgvbvh9 {
+.css-po3vlj.exg6vvm15 .css-1x8cf1d.edgvbvh10 {
   width: 80%;
   position: absolute;
   right: 10%;
 }
-
+/* ------------------ */
 .css-4u6e0b {
   gap: 0 !important;
 }
-
-/* .css-gk8e67 {
-    visibility: none !important;
-} */
 
 .css-18ni7ap {
   position: fixed;
@@ -53,6 +50,7 @@
   font-weight: bold;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
 /* Select mode Column */
 .css-j5r0tf.e1tzin5v2 {
   border: solid;

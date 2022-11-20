@@ -1,22 +1,19 @@
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
 import streamlit as st  # 🎈 data web app development
 import pandas as pd  # read csv, df manipulation
 import numpy as np
-import streamlit_vertical_slider as svs
-from scipy.io.wavfile import read, write
+from scipy.io.wavfile import read
 from scipy.io import wavfile
 from scipy import signal
 import altair as alt
 import os
 import streamlit.components.v1 as components
 import time as time_1
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 build_dir = os.path.join(parent_dir, "build")
-_vertical_slider = components.declare_component("vertical_slider", path=build_dir)
+_vertical_slider = components.declare_component(
+    "vertical_slider", path=build_dir)
 
 
 def vertical_slider(value, step, min=min, max=max, key=None):
@@ -60,27 +57,32 @@ def graph_sample(time, main_signal, edited_signal):
     max_2 = max(sampled_signal)
     min_1 = min(sampled_edited_signal)
     min_2 = min(sampled_signal)
-    return sampled_time,sampled_signal,sampled_edited_signal,min(min_1, min_2), max(max_1, max_2)
+    return sampled_time, sampled_signal, sampled_edited_signal, min(min_1, min_2), max(max_1, max_2)
 
 
 def plot(time, main_signal, edited_signal):
     if "loop_flag" not in st.session_state:
         st.session_state["loop_flag"] = True
-    sampled_time,sampled_signal,sampled_edited_signal,min, max= graph_sample(time, main_signal, edited_signal)
+    sampled_time, sampled_signal, sampled_edited_signal, min, max = graph_sample(
+        time, main_signal, edited_signal)
     graph_placeholder = st.empty()
     if "chart" not in st.session_state:
-        update_chart(sampled_time,sampled_signal,sampled_edited_signal,min, max)
+        update_chart(sampled_time, sampled_signal,
+                     sampled_edited_signal, min, max)
     if "counter" not in st.session_state:
         st.session_state["counter"] = 0
 
-    while(st.session_state.graph_mode == "play" and st.session_state.loop_flag==True ):
+    while(st.session_state.graph_mode == "play" and st.session_state.loop_flag == True):
         for i in range(st.session_state.counter, len(sampled_time), 5):
             time_1.sleep(0.01)
-            update_chart(sampled_time[i:i+200],sampled_signal[i:i+200],sampled_edited_signal[i:i+200],min, max)
-            graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
+            update_chart(sampled_time[i:i+200], sampled_signal[i:i+200],
+                         sampled_edited_signal[i:i+200], min, max)
+            graph_placeholder.altair_chart(
+                st.session_state.chart, use_container_width=True)
             st.session_state.counter = i
-        st.session_state.loop_flag=False 
-    graph_placeholder.altair_chart(st.session_state.chart, use_container_width=True)
+        st.session_state.loop_flag = False
+    graph_placeholder.altair_chart(
+        st.session_state.chart, use_container_width=True)
 
 
 def update_chart(time, input_amp, output_amp, min_y=-20, max_y=20):
@@ -90,20 +92,23 @@ def update_chart(time, input_amp, output_amp, min_y=-20, max_y=20):
         "Output Amplitude": output_amp
     })
     st.session_state["chart"] = alt.Chart(signal_dataframe).mark_line().encode(
-                x=alt.X(alt.repeat("row"), type='quantitative'),
-                y=alt.Y(alt.repeat("column"), type='quantitative', scale=alt.Scale(
-                    domain=[min_y, max_y]))
-            ).properties(
-                width=650,
-                height=180
-            ).repeat(
-                row=["Time(s)"],
-                column=['Input Amplitude', 'Output Amplitude']
-            ).interactive()
+        x=alt.X(alt.repeat("row"), type='quantitative'),
+        y=alt.Y(alt.repeat("column"), type='quantitative', scale=alt.Scale(
+            domain=[min_y, max_y]))
+    ).properties(
+        width=650,
+        height=180
+    ).repeat(
+        row=["Time(s)"],
+        column=['Input Amplitude', 'Output Amplitude']
+    ).interactive()
 
-def view_full_chart(time,input_signal,outpit_signal):
-    sampled_time,sampled_signal,sampled_edited_signal,min, max=graph_sample(time,input_signal,outpit_signal)
-    update_chart(sampled_time,sampled_signal,sampled_edited_signal,min, max)
+
+def view_full_chart(time, input_signal, outpit_signal):
+    sampled_time, sampled_signal, sampled_edited_signal, min, max = graph_sample(
+        time, input_signal, outpit_signal)
+    update_chart(sampled_time, sampled_signal, sampled_edited_signal, min, max)
+
 
 def plotSpectrogram(amplitude, invAmplitude, fs, range):
     # Set general font size
@@ -114,23 +119,25 @@ def plotSpectrogram(amplitude, invAmplitude, fs, range):
     if(not st.session_state.spectro_mode):
         spec[0].plot([], [])
         spec[1].plot([], [])
-    else :
+    else:
         N = 512
         w = signal.blackman(N)
-        nFreqs, nTime, nPxx = signal.spectrogram(amplitude, fs, window=w, nfft=N)
+        nFreqs, nTime, nPxx = signal.spectrogram(
+            amplitude, fs, window=w, nfft=N)
 
         invFreqs, invTime, invPXX = signal.spectrogram(
             invAmplitude, fs, window=w, nfft=N)
         pcm1 = spec[0].pcolormesh(nTime, nFreqs, np.log(nPxx))
         fig.colorbar(pcm1, ax=spec[0])
-        pcm2 = spec[1].pcolormesh(invTime, invFreqs, np.log(np.round(invPXX, 30)))
+        pcm2 = spec[1].pcolormesh(
+            invTime, invFreqs, np.log(np.round(invPXX, 30)))
         fig.colorbar(pcm2, ax=spec[1])
-    
+
     spec[0].set_xlabel(xlabel='Time [sec]', size=30)
     spec[0].set_ylabel(ylabel='Frequency (Hz)', size=30)
-    
+
     spec[1].set_xlabel(xlabel='Time [sec]', size=30)
-    
+
     st.pyplot(fig)
 
 
@@ -196,10 +203,8 @@ def signal_to_wav(signal, sample_rate):
     return audio_player
 
 
-
 def refresh_graph():
     if "counter" in st.session_state:
         del st.session_state["counter"]
         del st.session_state["chart"]
         del st.session_state["loop_flag"]
-

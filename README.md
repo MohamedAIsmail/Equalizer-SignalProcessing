@@ -20,21 +20,22 @@
 - We process the signal by scaling a range of frequencies based on **Decibel scale** after applying **Fast Fourier Transfrom** on the audio uploaded, After the changes we invert the changed frequencies back to Time Domain then convert it back into audio format.
 
 - Our application works in different modes such as:
+   - Uniform Range Mode: The sampling frequency of the input audio (44.1k Hz) we divide it by 2 to get the maximum frequency then divide it uniformly into 8 equal ranges of frequencies, each is controlled by one slider in the UI.
+   - Vowels Mode: Each slider can control the magnitude of specific vowel.
+   - Musical Instruments Mode: Each slider can control the power of a specific musical instrument.
+   - Animals Mode: Each slider can control the magnitude of a specific animal sound.
+ 
 
-> Uniform Range Mode: The sampling frequency of the input audio (44.1k Hz) we divide it by 2 to get the maximum frequency then divide it uniformly into 8 equal ranges of frequencies, each is controlled by one slider in the UI.
 
-> Vowels Mode: Each slider can control the magnitude of specific vowel.
-
-> Musical Instruments Mode: Each slider can control the power of a specific musical instrument.
-
-> Animals Mode: Each slider can control the magnitude of a specific animal sound.
 
 ### Features
 
 > Optimized software & fast processing speed
 > Clean audio reconstruction
 > Live dynamic plotting
-> Live updates on spectrogram
+![](Gifs/Live%20plotting%20preview.gif)
+> Quick updates on spectrogram
+![](Gifs/Live%20Spectrogram%20preview.gif)
 
 
 ### Run the Project 

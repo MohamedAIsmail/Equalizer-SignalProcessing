@@ -13,7 +13,7 @@
 
 ### Introduction
 
-Website used for Equalizing audios (reducing and increasing specific audios according to the chosen mode of operation) through Signal Processing.
+- Website used for Equalizing audios (reducing and increasing specific audios according to the chosen mode of operation) through Signal Processing.
 
 ### Brief Explanation
 
@@ -21,13 +21,13 @@ Website used for Equalizing audios (reducing and increasing specific audios acco
 
 - Our application works in different modes such as:
 
-Uniform Range Mode: The sampling frequency of the input audio (44.1k Hz) we divide it by 2 to get the maximum frequency then divide it uniformly into 8 equal ranges of frequencies, each is controlled by one slider in the UI.
+> Uniform Range Mode: The sampling frequency of the input audio (44.1k Hz) we divide it by 2 to get the maximum frequency then divide it uniformly into 8 equal ranges of frequencies, each is controlled by one slider in the UI.
 
-Vowels Mode: Each slider can control the magnitude of specific vowel.
+> Vowels Mode: Each slider can control the magnitude of specific vowel.
 
-Musical Instruments Mode: Each slider can control the power of a specific musical instrument.
+> Musical Instruments Mode: Each slider can control the power of a specific musical instrument.
 
-Animals Mode: Each slider can control the magnitude of a specific animal sound.
+> Animals Mode: Each slider can control the magnitude of a specific animal sound.
 
 ### Features
 

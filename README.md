@@ -34,6 +34,7 @@
 > Clean audio reconstruction
 > Live dynamic plotting
 ![](Gifs/Live%20plotting%20preview.gif)
+
 > Quick updates on spectrogram
 ![](Gifs/Live%20Spectrogram%20preview.gif)
 

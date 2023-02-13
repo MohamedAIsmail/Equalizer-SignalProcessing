@@ -71,7 +71,7 @@ Digital Signal Processing (SBE3110) class project created by:
 
 | Team Members' Names                                  | Section | B.N. |
 |------------------------------------------------------|:-------:|:----:|
-| [Mohamed Ahmed Ismail](https://github.com/1brahimmohamed) |    2    |  16   |
+| [Mohamed Ahmed Ismail](https://github.com/MohamedAIsmail) |    2    |  16   |
 | [Romaisaa Sherif](https://github.com/Romaisaa)    |    1    |  36  |
 | [Mariam Wael](https://github.com/MariamWaell)   |    2    |  36   |
 | [Mariam Megahed](https://github.com/MaryamMegahed)    |    2    |  32  |
